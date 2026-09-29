@@ -1,0 +1,75 @@
+:root {
+  --navy: #1c2436;
+  --navy-deep: #161e30;
+  --gold: #c4a761;
+  --gold-light: #f5e586;
+  --cream: #f7f0e3;
+  --muted: #a9b1bd;
+}
+
+body {
+  margin: 0;
+  font-family: 'Jost', Arial, sans-serif;
+  background-color: var(--cream);
+  color: var(--navy-deep);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--gold);
+  color: var(--navy-deep);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--gold-light);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: rgba(28, 36, 54, 0.05);
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.text-gold {
+  color: var(--gold);
+}
+
+.text-navy {
+  color: var(--navy);
+}
+
+.bg-navy {
+  background-color: var(--navy);
+  color: white;
+}
