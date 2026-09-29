@@ -18,6 +18,15 @@ body {
   box-sizing: border-box;
 }
 
+a {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--gold);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

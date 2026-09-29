@@ -39,7 +39,7 @@ export default function Dashboard() {
             </li>
             <li>
               {status.can_submit_case ? '✅' : '🔒'} 
-              <Link to="/submission" style={{ marginLeft: '0.5rem', color: status.can_submit_case ? 'var(--gold)' : 'var(--muted)' }}>Pengumpulan Case</Link>
+              <Link to="/submission" style={{ marginLeft: '0.5rem' }}>Pengumpulan Case</Link>
             </li>
           </ul>
         </div>
