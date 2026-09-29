@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Biodata from './pages/Biodata';
 import CaseRelease from './pages/CaseRelease';
+import CaseSubmission from './pages/CaseSubmission';
 import { useSession } from './hooks/useSession';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,11 @@ export default function App() {
           <Route path="case" element={
             <RequireAuth>
               <CaseRelease />
+            </RequireAuth>
+          } />
+          <Route path="submission" element={
+            <RequireAuth>
+              <CaseSubmission />
             </RequireAuth>
           } />
           <Route path="profil" element={
