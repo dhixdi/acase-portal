@@ -136,12 +136,6 @@ export function SubmissionPanel({ stageKey, title, helpText, canSubmit, stageInf
         </div>
       )}
 
-      {isOpen && !team?.biodata_completed && (
-        <div style={{ color: '#e65100' }}>
-          Lengkapi biodata tim Anda terlebih dahulu di menu Biodata untuk dapat melakukan submission.
-        </div>
-      )}
-
       {canSubmit && (
         <div style={{ border: '2px dashed #ccc', padding: '2rem', textAlign: 'center', borderRadius: '4px', marginBottom: '1.5rem', position: 'relative' }}>
           <input 
