@@ -1,1 +1,0 @@
-import{p as e}from"./index-D50fUiQK.js";import{t}from"./SubmissionsAdmin-C-tbSyLS.js";var n=e();function r(){return(0,n.jsx)(t,{stage:`pitch_deck`,title:`Monitoring Pitch Deck`})}export{r as default};
