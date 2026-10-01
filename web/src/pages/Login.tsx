@@ -15,13 +15,15 @@ export default function Login() {
     setError('');
     setLoading(true);
 
+    const loginEmail = email.includes('@') ? email : `${email}@asiq.ugm.ac.id`;
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 
     if (error) {
-      setError('Email atau password salah.');
+      setError('Username atau password salah.');
     } else {
       navigate('/');
     }
@@ -64,8 +66,8 @@ export default function Login() {
         
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <input
-            type="email"
-            placeholder="Email Tim"
+            type="text"
+            placeholder="Username (misal: acase.2026.11)"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required

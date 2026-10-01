@@ -41,18 +41,20 @@ export default function Dashboard() {
               {status.can_submit_case ? '✅' : '🔒'} 
               <Link to="/submission" style={{ marginLeft: '0.5rem' }}>Pengumpulan Case</Link>
             </li>
-            <li>
-              {status.is_finalist && status.stages['pitch_deck']?.is_open ? '✅' : '🔒'} 
-              <Link to="/pitch-deck" style={{ marginLeft: '0.5rem' }}>Pitch Deck Finalis</Link>
-            </li>
+            {status.is_finalist && (
+              <li>
+                {status.stages['pitch_deck']?.is_open ? '✅' : '🔒'} 
+                <Link to="/pitch-deck" style={{ marginLeft: '0.5rem' }}>Pitch Deck Finalis</Link>
+              </li>
+            )}
           </ul>
         </div>
 
-        <div className="card bg-navy">
-          <h3 style={{ marginTop: 0, color: 'var(--gold)' }}>Bantuan</h3>
-          <p>Jika ada kendala, hubungi panitia melalui:</p>
-          <p>WhatsApp: <strong>+62 812-xxxx-xxxx</strong></p>
-          <p>Email: <strong>asiqugm@gmail.com</strong></p>
+        <div className="card">
+          <h3 style={{ marginTop: 0, color: 'var(--navy-deep)' }}>Bantuan</h3>
+          <p style={{ color: 'var(--ink)' }}>Jika ada kendala, hubungi panitia melalui:</p>
+          <p style={{ color: 'var(--ink)' }}>WhatsApp: <strong style={{ color: 'var(--gold-deep)' }}>+62 813-8226-5484</strong> (Khisa)</p>
+          <p style={{ color: 'var(--ink)' }}>Email: <strong style={{ color: 'var(--gold-deep)' }}>asiqugm@gmail.com</strong></p>
         </div>
       </div>
     </div>

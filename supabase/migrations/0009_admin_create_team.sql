@@ -1,0 +1,65 @@
+-- ============================================================
+-- 0009_admin_create_team.sql
+-- ============================================================
+create extension if not exists pgcrypto;
+
+create or replace function public.admin_create_team()
+returns json
+language plpgsql security definer set search_path = public as $$
+declare
+  v_next_num int;
+  v_username text;
+  v_email text;
+  v_password text;
+  v_user_id uuid := gen_random_uuid();
+  v_encrypted_password text;
+begin
+  if not (select public.is_admin()) then
+    raise exception 'Akses ditolak';
+  end if;
+
+  -- Cari angka terakhir dari acase.2026.XX
+  select coalesce(max(nullif(regexp_replace(code, '^acase\.2026\.', ''), '')::int), 10)
+    into v_next_num
+    from public.teams
+   where code like 'acase.2026.%';
+  
+  v_next_num := v_next_num + 1;
+  v_username := 'acase.2026.' || v_next_num::text;
+  v_email := v_username || '@asiq.ugm.ac.id';
+  
+  -- Generate random password 8 chars (alphanumeric uppercase/lowercase)
+  v_password := substring(replace(encode(gen_random_bytes(10), 'base64'), '/', 'A') from 1 for 8);
+  
+  -- Encrypt password for GoTrue
+  v_encrypted_password := crypt(v_password, gen_salt('bf'));
+
+  -- Insert auth.users
+  insert into auth.users (
+    id, instance_id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  ) values (
+    v_user_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', v_email, v_encrypted_password,
+    now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, now(), now()
+  );
+
+  -- Insert auth.identities
+  insert into auth.identities (
+    provider_id, user_id, identity_data, provider, created_at, updated_at
+  ) values (
+    v_user_id::text, v_user_id, format('{"sub":"%s","email":"%s"}', v_user_id, v_email)::jsonb, 'email', now(), now()
+  );
+
+  -- Insert public.teams
+  insert into public.teams (user_id, code, login_email, category, payment_verified)
+  values (v_user_id, v_username, v_email, 'regular', true);
+
+  return json_build_object(
+    'username', v_username,
+    'password', v_password
+  );
+end;
+$$;
+
+revoke all on function public.admin_create_team() from public;
+grant execute on function public.admin_create_team() to authenticated;

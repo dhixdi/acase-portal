@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function AdminTeams() {
   const [search, setSearch] = useState('');
+  const queryClient = useQueryClient();
   
   const { data: teams, isLoading } = useQuery({
     queryKey: ['adminTeams'],
@@ -48,11 +49,25 @@ export default function AdminTeams() {
     a.click(); URL.revokeObjectURL(url);
   };
 
+  const generateNewAccount = async () => {
+    if (!confirm('Buat akun peserta (tim) baru secara otomatis?')) return;
+    const { data, error } = await supabase.rpc('admin_create_team');
+    if (error) {
+      alert('Gagal membuat akun: ' + error.message);
+      return;
+    }
+    alert(`BERHASIL DIBUAT!\n\nUsername: ${data.username}\nPassword: ${data.password}\n\nMohon catat password ini, karena tidak bisa dilihat lagi.`);
+    queryClient.invalidateQueries({ queryKey: ['adminTeams'] });
+  };
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <h1 className="text-navy">Daftar Tim ({filtered.length})</h1>
-        <button onClick={exportCSV} className="btn btn-primary">📥 Ekspor Biodata CSV</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <h1 className="text-navy" style={{ margin: 0 }}>Daftar Tim ({filtered.length})</h1>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={generateNewAccount} className="btn btn-ghost" style={{ background: '#e8f5e9', color: 'green', borderColor: 'green' }}>+ Akun Baru</button>
+          <button onClick={exportCSV} className="btn btn-primary">Ekspor Biodata CSV</button>
+        </div>
       </div>
 
       <input

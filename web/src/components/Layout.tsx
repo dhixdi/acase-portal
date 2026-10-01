@@ -30,7 +30,6 @@ export function Layout() {
           </Link>
           
           <nav style={{ display: 'flex', gap: '1.9rem', alignItems: 'center', fontFamily: 'var(--font-ui)' }}>
-            <Link to="/pengumuman" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Pengumuman</Link>
             {session ? (
               <>
                 <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>

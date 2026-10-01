@@ -1,315 +1,278 @@
 import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabase } from '../lib/supabase';
 import { useMyStatus } from '../hooks/useMyStatus';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
-const memberSchema = z.object({
-  full_name: z.string().min(2, "Minimal 2 karakter").max(100),
-  nim: z.string().min(3).max(30).regex(/^[A-Za-z0-9]+$/, "Hanya huruf dan angka"),
-  institution: z.string().min(2).max(100),
-  major: z.string().min(2).max(100),
-  degree_level: z.enum(["D3", "D4", "S1"]),
-  batch: z.string().regex(/^\d{4}$/, "Harus 4 digit angka"),
-  email: z.string().email("Email tidak valid"),
-  whatsapp: z.string().regex(/^\+?[0-9]{9,15}$/, "Nomor tidak valid"),
-});
+type Member = {
+  is_leader: boolean;
+  full_name: string;
+  nim: string;
+  institution: string;
+  major: string;
+  degree_level: 'D3'|'D4'|'S1';
+  batch: number;
+  email: string;
+  whatsapp: string;
+};
 
-const biodataSchema = z.object({
-  name: z.string().min(3, "Minimal 3 karakter").max(60),
-  team_size: z.union([z.literal(2), z.literal(3)]),
-  consent: z.boolean(),
-  leader_index: z.number().min(0).max(2),
-  members: z.array(memberSchema).min(2).max(3),
-}).refine(data => {
-  if (!data.consent) return false;
-  return true;
-}, {
-  message: "Anda wajib menyetujui ketentuan lomba",
-  path: ["consent"]
-});
-
-type BiodataForm = z.infer<typeof biodataSchema>;
+type BiodataForm = {
+  name: string;
+  team_size: number;
+  members: Member[];
+  consent: boolean;
+};
 
 export default function Biodata() {
-  const { data: status, isLoading: statusLoading } = useMyStatus();
-  const queryClient = useQueryClient();
+  const { data: status, isLoading } = useMyStatus();
   const navigate = useNavigate();
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
 
-  // Fetch existing members if biodata is already completed
-  const { data: existingMembers, isLoading: membersLoading } = useQuery({
-    queryKey: ['members'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('team_members').select('*').order('member_no');
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!status?.team?.biodata_completed
-  });
-
-  const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<BiodataForm>({
-    resolver: zodResolver(biodataSchema),
+  const { register, control, handleSubmit, watch, reset, trigger } = useForm<BiodataForm>({
     defaultValues: {
       name: '',
       team_size: 3,
-      consent: false,
-      leader_index: 0,
       members: [
-        { full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: '2023', email: '', whatsapp: '' },
-        { full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: '2023', email: '', whatsapp: '' },
-        { full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: '2023', email: '', whatsapp: '' }
-      ]
+        { is_leader: true, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' },
+        { is_leader: false, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' },
+        { is_leader: false, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' }
+      ],
+      consent: false
     }
   });
 
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "members"
-  });
-
+  const { fields, replace } = useFieldArray({ control, name: 'members' });
   const teamSize = watch('team_size');
-  const leaderIndex = watch('leader_index');
 
   useEffect(() => {
-    // Prefill form if data exists
-    if (status?.team?.biodata_completed && existingMembers && existingMembers.length > 0) {
-      const size = status.team.team_size as 2 | 3;
-      const leaderIdx = existingMembers.findIndex(m => m.is_leader);
+    if (status?.team) {
+      const t = status.team as any;
+      const formatWA = (wa: string) => wa ? wa.replace(/^\+62/, '').replace(/^0/, '') : '';
       
       reset({
-        name: status.team.name,
-        team_size: size,
-        consent: status.team.consent_given,
-        leader_index: leaderIdx >= 0 ? leaderIdx : 0,
-        members: existingMembers.map(m => ({
-          full_name: m.full_name,
-          nim: m.nim,
-          institution: m.institution,
-          major: m.major,
-          degree_level: m.degree_level as "D3" | "D4" | "S1",
-          batch: m.batch.toString(),
-          email: m.email,
-          whatsapp: m.whatsapp
-        }))
+        name: t.name || '',
+        team_size: t.team_size || 3,
+        members: t.members && t.members.length > 0 
+          ? t.members.map((m: any) => ({ ...m, whatsapp: formatWA(m.whatsapp) }))
+          : [
+          { is_leader: true, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' },
+          { is_leader: false, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' },
+          { is_leader: false, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' }
+        ],
+        consent: !!t.consent_given
       });
     }
-  }, [status, existingMembers, reset]);
+  }, [status, reset]);
 
-  // Handle changing team size
+  // Handle team size changes
   useEffect(() => {
-    if (teamSize === 2 && fields.length === 3) {
-      if (confirm('Mengubah menjadi 2 anggota akan menghapus data anggota ke-3. Lanjutkan?')) {
-        remove(2);
-        if (leaderIndex === 2) setValue('leader_index', 0);
-      } else {
-        setValue('team_size', 3);
-      }
-    } else if (teamSize === 3 && fields.length === 2) {
-      append({ full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: '2023', email: '', whatsapp: '' });
+    const currentMembers = watch('members');
+    if (teamSize == 2 && currentMembers.length > 2) {
+      replace(currentMembers.slice(0, 2));
+    } else if (teamSize == 3 && currentMembers.length < 3) {
+      replace([...currentMembers, { is_leader: false, full_name: '', nim: '', institution: '', major: '', degree_level: 'S1', batch: 2023, email: '', whatsapp: '' }]);
     }
-  }, [teamSize, fields.length, remove, append, leaderIndex, setValue]);
+  }, [teamSize, replace, watch]);
 
-  if (statusLoading || (status?.team?.biodata_completed && membersLoading)) {
-    return <div>Memuat data...</div>;
-  }
+  if (isLoading) return <div className="wrap" style={{ padding: '2rem' }}>Memuat...</div>;
 
-  const isEditable = status?.biodata_editable;
+  const isEditable = status?.biodata_editable !== false;
+  const teamData = status?.team as any;
+
+  // Total steps:
+  // Step 1: Info Tim
+  // Step 2: Ketua (Anggota 1)
+  // Step 3: Anggota 2
+  // Step 4: Anggota 3 (only if team_size == 3)
+  // Step 5: Persetujuan (If team_size==2, this is Step 4)
+  const maxStep = teamSize == 3 ? 5 : 4;
+
+  const nextStep = async () => {
+    // Validate current step
+    let valid = false;
+    if (step === 1) {
+      valid = await trigger(['name', 'team_size']);
+    } else if (step === 2) {
+      valid = await trigger(`members.0` as any);
+    } else if (step === 3) {
+      valid = await trigger(`members.1` as any);
+    } else if (step === 4 && teamSize == 3) {
+      valid = await trigger(`members.2` as any);
+    }
+
+    if (valid) {
+      setStep(s => Math.min(maxStep, s + 1));
+    } else {
+      alert('Mohon lengkapi semua isian yang wajib dengan benar sebelum melanjutkan.');
+    }
+  };
+
+  const prevStep = () => setStep(s => Math.max(1, s - 1));
 
   const onSubmit = async (data: BiodataForm) => {
-    setErrorMsg('');
-    setSuccessMsg('');
-    setIsSubmitting(true);
-
-    const payload = data.members.map((m, idx) => ({
+    if (!isEditable) return;
+    setSaving(true);
+    
+    const formattedMembers = data.members.map(m => ({
       ...m,
-      batch: parseInt(m.batch, 10),
-      is_leader: idx === data.leader_index
+      whatsapp: `+62${m.whatsapp.replace(/^0/, '')}`
     }));
 
     const { error } = await supabase.rpc('save_team_biodata', {
       p_name: data.name,
       p_team_size: data.team_size,
-      p_members: payload,
+      p_members: formattedMembers,
       p_consent: data.consent
     });
-
-    setIsSubmitting(false);
+    setSaving(false);
 
     if (error) {
-      setErrorMsg(error.message);
+      alert('Gagal menyimpan: ' + error.message);
     } else {
-      setSuccessMsg('Biodata berhasil disimpan!');
-      queryClient.invalidateQueries({ queryKey: ['myStatus'] });
-      queryClient.invalidateQueries({ queryKey: ['members'] });
-      // Clear draft logic can go here
+      alert('Biodata berhasil disimpan!');
+      navigate('/');
     }
   };
 
+  const renderInput = (label: string, field: any, type="text", req=true) => (
+    <div style={{ marginBottom: '1rem' }}>
+      <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--navy-deep)' }}>
+        {label} {req && <span style={{color: 'red'}}>*</span>}
+      </label>
+      <input type={type} {...field} required={req} disabled={!isEditable} style={{ width: '100%', padding: '0.6rem' }} />
+    </div>
+  );
+
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div>
       <h1 className="text-navy">Biodata Tim</h1>
       
       {!isEditable && (
-        <div style={{ background: '#fff3cd', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem', color: '#856404' }}>
-          Periode pengisian biodata telah ditutup. Form ini dalam mode baca saja (Read-only). Hubungi panitia jika ada koreksi.
+        <div style={{ background: '#ffebee', color: '#c62828', padding: '1rem', borderRadius: '4px', marginBottom: '2rem' }}>
+          Waktu pengisian biodata sudah ditutup. Data bersifat read-only.
         </div>
       )}
 
-      {errorMsg && (
-        <div style={{ background: '#ffebee', color: 'red', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem' }}>
-          {errorMsg}
-        </div>
-      )}
-
-      {successMsg && (
-        <div style={{ background: '#e8f5e9', color: 'green', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{successMsg}</span>
-          <button onClick={() => navigate('/case')} className="btn btn-primary">Lanjut ke Case Release</button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-        {/* STEP 1: DATA TIM */}
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>1. Data Tim</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontWeight: 'bold' }}>Nama Kelompok</label>
-              <input {...register('name')} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-              {errors.name && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.name.message}</span>}
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontWeight: 'bold' }}>Jumlah Anggota</label>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <label>
-                  <input type="radio" value={2} {...register('team_size', { valueAsNumber: true })} disabled={!isEditable} /> 2 Orang
-                </label>
-                <label>
-                  <input type="radio" value={3} {...register('team_size', { valueAsNumber: true })} disabled={!isEditable} /> 3 Orang
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* STEP 2: ANGGOTA */}
-        {fields.map((field, index) => (
-          <div key={field.id} className="card" style={{ borderLeft: watch('leader_index') === index ? '4px solid var(--gold)' : '4px solid transparent' }}>
-            <h2 style={{ marginTop: 0, display: 'flex', justifyContent: 'space-between' }}>
-              <span>2.{index + 1} Anggota {index + 1}</span>
-              <label style={{ fontSize: '1rem', fontWeight: 'normal', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input type="radio" value={index} {...register('leader_index', { valueAsNumber: true })} disabled={!isEditable} /> 
-                Ketua Tim
-              </label>
-            </h2>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label style={{ display: 'block' }}>Nama Lengkap</label>
-                <input {...register(`members.${index}.full_name`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-                {errors.members?.[index]?.full_name && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.members[index]?.full_name?.message}</span>}
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>NIM</label>
-                <input {...register(`members.${index}.nim`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-                {errors.members?.[index]?.nim && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.members[index]?.nim?.message}</span>}
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>Asal Kampus</label>
-                <input {...register(`members.${index}.institution`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>Program Studi</label>
-                <input {...register(`members.${index}.major`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>Jenjang</label>
-                <select {...register(`members.${index}.degree_level`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }}>
-                  <option value="D3">D3</option>
-                  <option value="D4">D4</option>
-                  <option value="S1">S1</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>Angkatan (Tahun)</label>
-                <input {...register(`members.${index}.batch`)} disabled={!isEditable} placeholder="Misal: 2023" style={{ width: '100%', padding: '0.5rem' }} />
-                {errors.members?.[index]?.batch && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.members[index]?.batch?.message}</span>}
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>Email</label>
-                <input type="email" {...register(`members.${index}.email`)} disabled={!isEditable} style={{ width: '100%', padding: '0.5rem' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block' }}>No. WhatsApp</label>
-                <input {...register(`members.${index}.whatsapp`)} disabled={!isEditable} placeholder="+6281234567890" style={{ width: '100%', padding: '0.5rem' }} />
-                {errors.members?.[index]?.whatsapp && <span style={{ color: 'red', fontSize: '0.875rem' }}>{errors.members[index]?.whatsapp?.message}</span>}
-              </div>
-            </div>
-          </div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        {Array.from({ length: maxStep }).map((_, i) => (
+          <div key={i} style={{ 
+            flex: 1, 
+            height: '6px', 
+            background: step >= i + 1 ? 'var(--gold)' : '#ddd',
+            borderRadius: '4px',
+            transition: 'background 0.3s'
+          }} />
         ))}
+      </div>
 
-        {/* STEP 3: BUKTI MAHASISWA */}
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>3. Bukti Mahasiswa Aktif (Opsional)</h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
-            Unggah file PDF/JPG/PNG berisi hasil pindaian KTM atau tangkapan layar status mahasiswa aktif semua anggota (maks. 2 MB).
-          </p>
-          {status?.team?.student_proof_path ? (
-            <div style={{ padding: '0.75rem', background: '#e8f5e9', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '1rem', color: 'green' }}>
-              ✅ Bukti telah diunggah.
+      <form onSubmit={handleSubmit(onSubmit)} className="card">
+        
+        {/* STEP 1: INFO TIM */}
+        <div style={{ display: step === 1 ? 'block' : 'none' }}>
+          <h2 style={{ marginTop: 0 }}>Langkah 1: Identitas Tim</h2>
+          <p style={{ color: 'var(--mist)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Tentukan nama kelompok yang merepresentasikan semangat Anda.</p>
+          
+          {renderInput('Nama Kelompok (3-60 karakter)', register('name', { required: true, minLength: 3, maxLength: 60 }))}
+          
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--navy-deep)' }}>Jumlah Anggota Tim <span style={{color:'red'}}>*</span></label>
+            <select {...register('team_size', { valueAsNumber: true })} disabled={!isEditable} style={{ width: '100%', padding: '0.6rem' }}>
+              <option value={2}>2 Orang</option>
+              <option value={3}>3 Orang</option>
+            </select>
+          </div>
+        </div>
+
+        {/* STEPS FOR MEMBERS */}
+        {fields.map((field, index) => {
+          const stepNumber = index + 2;
+          return (
+            <div key={field.id} style={{ display: step === stepNumber ? 'block' : 'none' }}>
+              <h2 style={{ marginTop: 0 }}>Langkah {stepNumber}: Anggota {index + 1} {index === 0 ? '(Ketua)' : ''}</h2>
+              <p style={{ color: 'var(--mist)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Lengkapi identitas diri anggota ini dengan data yang valid.</p>
+              
+              <div className="grid-2">
+                {renderInput('Nama Lengkap', register(`members.${index}.full_name`, { required: true }))}
+                {renderInput('NIM / NIS', register(`members.${index}.nim`, { required: true }))}
+              </div>
+              <div className="grid-2">
+                {renderInput('Asal Instansi/Universitas', register(`members.${index}.institution`, { required: true }))}
+                {renderInput('Program Studi', register(`members.${index}.major`, { required: true }))}
+              </div>
+              <div className="grid-2">
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--navy-deep)' }}>Jenjang <span style={{color:'red'}}>*</span></label>
+                  <select {...register(`members.${index}.degree_level`)} disabled={!isEditable} style={{ width: '100%', padding: '0.6rem' }}>
+                    <option value="S1">S1 / Sarjana Terapan</option>
+                    <option value="D4">D4</option>
+                    <option value="D3">D3</option>
+                  </select>
+                </div>
+                {renderInput('Tahun Angkatan', register(`members.${index}.batch`, { required: true, valueAsNumber: true, min: 2015, max: 2035 }), "number")}
+              </div>
+              <div className="grid-2">
+                {renderInput('Email Valid', register(`members.${index}.email`, { required: true, pattern: /^\S+@\S+$/i }), "email")}
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.4rem', color: 'var(--navy-deep)' }}>
+                    WhatsApp <span style={{color: 'red'}}>*</span>
+                  </label>
+                  <div style={{ display: 'flex', border: '1px solid var(--gold-deep)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <span style={{ padding: '0.6rem 0.8rem', background: '#e9e2d5', color: 'var(--navy-deep)', borderRight: '1px solid var(--gold-deep)', fontWeight: 500 }}>
+                      +62
+                    </span>
+                    <input 
+                      type="tel" 
+                      {...register(`members.${index}.whatsapp`, { required: true, pattern: /^[0-9]{8,15}$/ })} 
+                      disabled={!isEditable} 
+                      placeholder="81234567890"
+                      style={{ width: '100%', padding: '0.6rem', border: 'none', outline: 'none' }} 
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : null}
-          {isEditable && (
-            <input 
-              type="file" 
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                if (file.size > 2 * 1024 * 1024) { alert('Ukuran file maksimal 2 MB'); e.target.value = ''; return; }
-                
-                // Generate path based on ext
-                const ext = file.name.split('.').pop()?.toLowerCase();
-                if (!['pdf', 'jpg', 'jpeg', 'png'].includes(ext!)) { alert('Format tidak didukung'); e.target.value = ''; return; }
-                const path = `${status?.team?.id}/proof.${ext === 'jpeg' ? 'jpg' : ext}`;
-                
-                // Upload to supabase storage 'student-proofs'
-                const { error: uploadError } = await supabase.storage.from('student-proofs').upload(path, file, { upsert: true });
-                if (uploadError) { alert('Gagal mengunggah bukti: ' + uploadError.message); return; }
-                
-                // Update DB
-                const { error: dbError } = await supabase.rpc('set_student_proof', { p_path: path });
-                if (dbError) { alert('Gagal menyimpan path bukti: ' + dbError.message); return; }
-                
-                alert('Bukti mahasiswa berhasil diunggah.');
-                window.location.reload(); // Quick refresh to update state
-              }}
-            />
+          );
+        })}
+
+        {/* LAST STEP: PERSETUJUAN */}
+        <div style={{ display: step === maxStep ? 'block' : 'none' }}>
+          <h2 style={{ marginTop: 0 }}>Langkah {maxStep}: Konfirmasi</h2>
+          <p style={{ color: 'var(--mist)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Harap periksa kembali isian Anda. Centang kotak persetujuan untuk menyimpan data secara permanen.</p>
+          
+          <div style={{ padding: '1rem', background: 'rgba(196,167,97,.08)', borderLeft: '3px solid var(--gold)', marginBottom: '1.5rem' }}>
+            <label style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', cursor: isEditable ? 'pointer' : 'default' }}>
+              <input type="checkbox" {...register('consent', { required: true })} disabled={!isEditable || teamData?.consent_given} style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }} />
+              <span style={{ fontSize: '0.95rem' }}>Saya menyatakan bahwa seluruh data yang diisi adalah benar, dan menyetujui ketentuan lomba serta penggunaan data pribadi untuk keperluan administrasi dan penyelenggaraan ASiQ 2026.</span>
+            </label>
+          </div>
+        </div>
+
+        {/* NAVIGATION BUTTONS */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2.5rem', borderTop: '1px solid var(--line-soft)', paddingTop: '1.5rem' }}>
+          {step > 1 ? (
+            <button type="button" onClick={prevStep} className="btn btn-ghost">
+              &laquo; Sebelumnya
+            </button>
+          ) : <div></div>}
+          
+          {step < maxStep ? (
+            <button type="button" onClick={nextStep} className="btn btn-primary">
+              Selanjutnya &raquo;
+            </button>
+          ) : (
+            isEditable ? (
+              <button type="submit" disabled={saving} className="btn btn-primary">
+                {saving ? 'Menyimpan...' : 'Simpan Final'}
+              </button>
+            ) : (
+              <button type="button" onClick={() => navigate('/')} className="btn btn-primary">
+                Kembali ke Beranda
+              </button>
+            )
           )}
         </div>
 
-        {/* STEP 4: PERSETUJUAN */}
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>4. Persetujuan</h2>
-          <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-            <input type="checkbox" {...register('consent')} disabled={!isEditable || status?.team?.consent_given} style={{ marginTop: '0.25rem' }} />
-            <span>Saya menyatakan data benar dan menyetujui ketentuan lomba serta penggunaan data pribadi untuk keperluan penyelenggaraan ASiQ 2026.</span>
-          </label>
-          {errors.consent && <div style={{ color: 'red', marginTop: '0.5rem', fontSize: '0.875rem' }}>{errors.consent.message}</div>}
-        </div>
-
-        {isEditable && (
-          <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.1rem' }}>
-            {isSubmitting ? 'Menyimpan...' : 'Simpan Biodata'}
-          </button>
-        )}
       </form>
     </div>
   );
