@@ -301,12 +301,14 @@ export default function Biodata() {
           <h2 style={{ marginTop: 0 }}>Identitas Tim</h2>
           <p
             style={{
-              color: "var(--navy-soft)",
+              color: "var(--navy-deep)",
               fontSize: "0.95rem",
               marginBottom: "1.5rem",
             }}
           >
-            Nama kelompok bebas menggunakan upper case dan lower case yang kalian inginkan misal "ACASE Team" atau "ACasE team". Nama tim akan digunakan untuk keperluan lomba dan publikasi.
+            Nama kelompok bebas menggunakan upper case dan lower case yang
+            kalian inginkan misal "ACASE Team" atau "ACasE team". Nama tim akan
+            digunakan untuk keperluan lomba dan publikasi.
           </p>
 
           {renderInput(
