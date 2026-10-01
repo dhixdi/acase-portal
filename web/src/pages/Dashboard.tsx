@@ -58,48 +58,30 @@ export default function Dashboard() {
         .dashboard-wrapper {
           animation: fadeIn 0.6s ease-out forwards;
         }
-        .dash-hero {
-          background: linear-gradient(135deg, var(--navy-deep), var(--navy-soft));
-          border-radius: 12px;
-          padding: 3rem 2.5rem;
-          color: var(--cream);
-          margin-bottom: 2.5rem;
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 20px 40px rgba(22, 30, 48, 0.15);
+
+        .dash-welcome {
+          margin-bottom: 2rem;
         }
-        .dash-hero::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: radial-gradient(1px 1px at 10% 20%, #fff, transparent), radial-gradient(1px 1px at 80% 15%, #fff, transparent), radial-gradient(1px 1px at 45% 60%, #fff, transparent);
-          opacity: 0.3;
+        .dash-welcome h1 {
+          font-size: 2.2rem;
+          font-weight: 700;
+          color: var(--navy-deep);
+          margin-bottom: 0.3rem;
         }
-        .dash-hero-content {
-          position: relative;
-          z-index: 1;
-        }
-        .dash-hero h1 {
-          color: var(--cream);
-          font-size: 2.5rem;
-          margin-bottom: 0.5rem;
-        }
-        .badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.4rem;
-          background: rgba(196, 167, 97, 0.15);
-          border: 1px solid var(--gold);
-          color: var(--gold-bright);
-          padding: 0.4rem 0.8rem;
-          border-radius: 50px;
-          font-size: 0.85rem;
+        .dash-welcome p {
+          color: var(--navy-deep);
+          font-size: 1rem;
           font-family: var(--font-ui);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-top: 1rem;
+          margin: 0;
         }
-        
+        .dash-welcome .team-code {
+          font-family: var(--font-ui);
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--gold-deep);
+          letter-spacing: 0.05em;
+        }
+
         .dash-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -166,15 +148,17 @@ export default function Dashboard() {
           background: #e8f5e9;
         }
         .dash-action-card.locked .icon-wrapper {
-          color: var(--mist);
+          color: var(--navy-soft);
         }
         
         .dash-action-card h3 {
           font-size: 1.4rem;
+          font-weight: 700;
           margin-bottom: 0.5rem;
+          color: var(--navy-deep);
         }
         .dash-action-card p {
-          color: var(--mist);
+          color: var(--navy-soft);
           font-size: 0.95rem;
           line-height: 1.5;
           flex: 1;
@@ -194,6 +178,9 @@ export default function Dashboard() {
         }
         .dash-action-card.done .status-text {
           color: #2e7d32;
+        }
+        .dash-action-card.locked .status-text {
+          color: var(--navy-soft);
         }
         .arrow-icon {
           color: var(--gold-deep);
@@ -219,22 +206,11 @@ export default function Dashboard() {
         }
       `}</style>
 
-      <div className="dash-hero">
-        <div className="dash-hero-content">
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.9rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 0.5rem' }}>
-            Dashboard Peserta
-          </p>
-          <h1>Selamat Datang, {team.name || team.code}</h1>
-          <p style={{ maxWidth: '600px', margin: 0, color: '#c7cedb', fontSize: '1.05rem' }}>
-            Siapkan tim Anda untuk tantangan aktuaria terbesar. Selesaikan misi satu per satu untuk meraih juara!
-          </p>
-          <div className="badge">
-            <IconCheck /> Pembayaran Terverifikasi
-          </div>
-        </div>
+      <div className="dash-welcome">
+        <span className="team-code">{team.code}</span>
+        <h1>Selamat Datang, {team.name || team.code}</h1>
       </div>
 
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem' }}>Misi Tim</h2>
       <div className="dash-grid">
         <ActionCard 
           step={1}
@@ -248,11 +224,11 @@ export default function Dashboard() {
         
         <ActionCard 
           step={2}
-          title="Materi Case"
+          title="Case Release"
           desc="Unduh soal kasus dan panduan penyelesaian yang diberikan oleh Tugu Insurance."
           icon={<IconDownload />}
           locked={!status.can_access_case}
-          done={false} // Selalu bisa diunduh berkali-kali
+          done={false}
           to="/case"
         />
         
@@ -281,16 +257,16 @@ export default function Dashboard() {
 
       <div className="help-banner">
         <div>
-          <h3 style={{ margin: '0 0 0.2rem', color: 'var(--navy-deep)', fontSize: '1.3rem' }}>Butuh Bantuan?</h3>
-          <p style={{ margin: 0, color: 'var(--ink)', fontSize: '0.95rem' }}>Tim kepanitiaan kami siap membantu Anda.</p>
+          <h3 style={{ margin: '0 0 0.2rem', color: 'var(--navy-deep)', fontSize: '1.3rem', fontWeight: 700 }}>Butuh Bantuan?</h3>
+          <p style={{ margin: 0, color: 'var(--navy-deep)', fontSize: '0.95rem' }}>Tim kepanitiaan kami siap membantu Anda.</p>
         </div>
         <div style={{ display: 'flex', gap: '2rem', fontFamily: 'var(--font-ui)' }}>
           <div>
-            <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--mist)' }}>WhatsApp</span>
+            <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--navy-soft)' }}>WhatsApp</span>
             <strong style={{ color: 'var(--gold-deep)' }}>+62 813-8226-5484</strong>
           </div>
           <div>
-            <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--mist)' }}>Email</span>
+            <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--navy-soft)' }}>Email</span>
             <strong style={{ color: 'var(--gold-deep)' }}>asiqugm@gmail.com</strong>
           </div>
         </div>

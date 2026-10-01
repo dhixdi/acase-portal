@@ -43,7 +43,7 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   color: var(--navy-deep);
   margin: 0 0 0.5em;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.15;
 }
 

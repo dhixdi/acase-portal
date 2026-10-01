@@ -23,13 +23,11 @@ export function Layout() {
         backdropFilter: 'blur(6px)'
       }}>
         <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '74px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <img src={logoUrl} alt="Logo" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
-            <div style={{ lineHeight: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
-                <span style={{ fontFamily: 'var(--font-display)', color: 'var(--cream)', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '.04em' }}>ACASE</span>
-                <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold)', fontSize: '1.35rem' }}>Quest</span>
-              </div>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <img src={logoUrl} alt="Logo" style={{ height: '42px', width: '42px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+              <span style={{ fontFamily: "'Monotype Corsiva', 'Segoe Script', cursive", fontWeight: 400, color: 'var(--gold-bright)', fontSize: '1.15rem' }}>ACASE</span>
+              <span style={{ fontFamily: 'var(--font-ui)', color: 'var(--cream)', fontSize: '0.72rem', letterSpacing: '0.06em', marginTop: '2px' }}>ASiQ UGM 2026</span>
             </div>
           </Link>
           
@@ -37,7 +35,6 @@ export function Layout() {
             {session ? (
               <>
                 {isAdmin ? (
-                  /* Admin: tampilkan link ke panel admin, bukan dashboard peserta */
                   <Link to="/admin" style={{ color: 'var(--gold-bright)', fontSize: '0.97rem', fontWeight: 500 }}>
                     ⚙️ Panel Admin
                   </Link>

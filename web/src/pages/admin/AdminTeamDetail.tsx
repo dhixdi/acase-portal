@@ -1,10 +1,11 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
 
 export default function AdminTeamDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [note, setNote] = useState('');
 
@@ -60,6 +61,40 @@ export default function AdminTeamDetail() {
     alert('Catatan disimpan');
   };
 
+  const handleDeleteTeam = async () => {
+    if (!confirm('PERINGATAN KRITIS: Anda yakin ingin menghapus tim ini sepenuhnya? Semua data biodata dan file submission juga akan terhapus. Tindakan ini TIDAK DAPAT DIBATALKAN.')) return;
+    
+    // Call RPC to delete from auth.users (which cascades)
+    const { error } = await supabase.rpc('admin_delete_team', { p_team_id: id });
+    if (error) {
+      alert('Gagal menghapus tim: ' + error.message);
+    } else {
+      alert('Tim berhasil dihapus.');
+      queryClient.invalidateQueries({ queryKey: ['adminTeams'] });
+      navigate('/admin/teams');
+    }
+  };
+
+  const handleDeleteSubmission = async (s: any) => {
+    if (!confirm(`Yakin ingin menghapus file ${s.file_name} pada tahap ${s.stage}?`)) return;
+
+    // Delete file from storage
+    const { error: storageError } = await supabase.storage.from('submissions').remove([s.file_path]);
+    if (storageError) {
+      alert('Gagal menghapus file dari storage: ' + storageError.message);
+      return;
+    }
+    
+    // Delete record from DB
+    const { error: dbError } = await supabase.from('submissions').delete().eq('id', s.id);
+    if (dbError) {
+      alert('Gagal menghapus record: ' + dbError.message);
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['adminTeamSubmissions', id] });
+      queryClient.invalidateQueries({ queryKey: ['adminTeamHistory', id] });
+    }
+  };
+
   if (isLoading) return <div>Memuat detail tim...</div>;
   if (!team) return <div>Tim tidak ditemukan.</div>;
 
@@ -74,12 +109,15 @@ export default function AdminTeamDetail() {
           <h1 className="text-navy" style={{ margin: 0 }}>{team.code} — {team.name || '(Belum Biodata)'}</h1>
           <div style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Login: {team.login_email}</div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => toggleStatus('is_active', team.is_active)} className={`btn ${team.is_active ? 'btn-ghost' : 'btn-primary'}`}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button onClick={() => toggleStatus('is_active', team.is_active)} className={`btn ${team.is_active ? 'btn-ghost' : 'btn-primary'}`} style={{ padding: '0.5rem 1rem' }}>
             {team.is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}
           </button>
-          <button onClick={() => toggleStatus('payment_verified', team.payment_verified)} className="btn btn-ghost">
+          <button onClick={() => toggleStatus('payment_verified', team.payment_verified)} className="btn btn-ghost" style={{ padding: '0.5rem 1rem' }}>
             Pembayaran: {team.payment_verified ? '✅ Lunas' : '❌ Belum'}
+          </button>
+          <button onClick={handleDeleteTeam} className="btn btn-ghost" style={{ padding: '0.5rem 1rem', color: '#d32f2f', borderColor: '#d32f2f' }}>
+            Hapus Tim
           </button>
         </div>
       </div>
@@ -126,10 +164,13 @@ export default function AdminTeamDetail() {
                     <strong>Tahap:</strong> {s.stage} ({s.slot})<br/>
                     <strong>File:</strong> {s.file_name} ({Math.round(s.file_size / 1024)} KB)<br/>
                     <strong>Waktu:</strong> {new Date(s.updated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}<br/>
-                    <button onClick={async () => {
-                      const { data } = await supabase.storage.from('submissions').createSignedUrl(s.file_path, 60);
-                      if (data?.signedUrl) window.open(data.signedUrl);
-                    }} className="btn btn-ghost" style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>Unduh</button>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <button onClick={async () => {
+                        const { data } = await supabase.storage.from('submissions').createSignedUrl(s.file_path, 60);
+                        if (data?.signedUrl) window.open(data.signedUrl);
+                      }} className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem' }}>Unduh</button>
+                      <button onClick={() => handleDeleteSubmission(s)} className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', color: '#d32f2f', borderColor: '#d32f2f' }}>Hapus File</button>
+                    </div>
                   </li>
                 ))}
               </ul>
