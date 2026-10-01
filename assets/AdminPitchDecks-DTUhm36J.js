@@ -1,0 +1,1 @@
+import{f as e}from"./index-C3-OFtil.js";import{t}from"./SubmissionsAdmin---Oc_ONm.js";var n=e();function r(){return(0,n.jsx)(t,{stage:`pitch_deck`,title:`Monitoring Pitch Deck`})}export{r as default};
