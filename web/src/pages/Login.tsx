@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import logoUrl from '../assets/logo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -48,7 +49,7 @@ export default function Login() {
         textAlign: 'center'
       }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-          <img src="/logo.png" alt="ACASE Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
+          <img src={logoUrl} alt="ACASE Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
         </div>
         <h1 style={{ fontFamily: 'var(--font-display)', color: 'var(--navy-deep)', marginBottom: '1.5rem' }}>
           Portal Peserta<br/>

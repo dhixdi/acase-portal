@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { supabase } from '../lib/supabase';
+import logoUrl from '../assets/logo.png';
 
 export function Layout() {
   const { session } = useSession();
@@ -21,7 +22,7 @@ export function Layout() {
       }}>
         <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '74px' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <img src="/logo.png" alt="Logo" style={{ height: '42px', width: '42px', objectFit: 'contain' }} />
+            <img src={logoUrl} alt="Logo" style={{ height: '42px', width: '42px', objectFit: 'contain' }} />
             <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
               <span style={{ fontFamily: 'var(--font-display)', color: 'var(--cream)', fontSize: '1.15rem', letterSpacing: '.02em' }}>Portal Peserta</span>
               <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold-bright)', fontSize: '1.05rem', marginTop: '-2px' }}>ACASE 2026</span>
@@ -65,7 +66,7 @@ export function Layout() {
             <span style={{ fontSize: '2.2rem', fontFamily: 'var(--font-script)', color: 'var(--gold)', lineHeight: 1 }}>ASiQ 2026</span>
             <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.8rem', fontWeight: 300, color: '#a9b1bd', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Presented by</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.3rem' }}>
-              <img src="/logo.png" alt="Logo ASiQ" style={{ height: '50px', objectFit: 'contain' }} />
+              <img src={logoUrl} alt="Logo ASiQ" style={{ height: '50px', objectFit: 'contain' }} />
             </div>
           </div>
           
