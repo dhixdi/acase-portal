@@ -41,6 +41,10 @@ export default function Dashboard() {
               {status.can_submit_case ? '✅' : '🔒'} 
               <Link to="/submission" style={{ marginLeft: '0.5rem' }}>Pengumpulan Case</Link>
             </li>
+            <li>
+              {status.is_finalist && status.stages['pitch_deck']?.is_open ? '✅' : '🔒'} 
+              <Link to="/pitch-deck" style={{ marginLeft: '0.5rem' }}>Pitch Deck Finalis</Link>
+            </li>
           </ul>
         </div>
 

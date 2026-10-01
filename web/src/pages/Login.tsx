@@ -28,34 +28,61 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '4rem auto' }} className="card">
-      <h1 style={{ marginTop: 0, textAlign: 'center' }} className="text-navy">Masuk Portal</h1>
-      {error && <div style={{ color: 'red', marginBottom: '1rem', padding: '0.5rem', background: '#ffebee', borderRadius: '4px' }}>{error}</div>}
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>Email</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
-            required
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      position: 'relative',
+      background: 'linear-gradient(180deg, var(--navy-deep), var(--navy) 70%, var(--navy-soft))',
+      overflow: 'hidden'
+    }}>
+      <div className="stars-bg"></div>
+      
+      <div className="card" style={{ 
+        maxWidth: '400px', 
+        width: '90%', 
+        position: 'relative', 
+        zIndex: 1,
+        background: 'var(--cream)',
+        textAlign: 'center'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <img src="/logo.png" alt="ACASE Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
         </div>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>Password</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={e => setPassword(e.target.value)} 
+        <h1 style={{ fontFamily: 'var(--font-display)', color: 'var(--navy-deep)', marginBottom: '1.5rem' }}>
+          Portal Peserta<br/>
+          <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold-deep)', fontSize: '1.4rem' }}>ACASE 2026</span>
+        </h1>
+        
+        {error && (
+          <div style={{ background: '#ffebee', color: '#c62828', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.9rem', fontFamily: 'var(--font-ui)' }}>
+            {error}
+          </div>
+        )}
+        
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <input
+            type="email"
+            placeholder="Email Tim"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{ width: '100%' }}
           />
-        </div>
-        <button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-          {loading ? 'Masuk...' : 'Masuk'}
-        </button>
-      </form>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            style={{ width: '100%' }}
+          />
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: '0.5rem', width: '100%' }}>
+            {loading ? 'Masuk...' : 'Masuk'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

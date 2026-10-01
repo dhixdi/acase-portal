@@ -1,84 +1,179 @@
+/* =========================================================
+   ASiQ 2026 — Design System (Portal Edition)
+   ========================================================= */
+
 :root {
-  --navy: #1c2436;
   --navy-deep: #161e30;
+  --navy: #202c46;
+  --navy-soft: #293a5c;
   --gold: #c4a761;
-  --gold-light: #f5e586;
+  --gold-bright: #f5e586;
+  --gold-deep: #a0823f;
   --cream: #f7f0e3;
-  --muted: #a9b1bd;
+  --cream-card: #efe2cb;
+  --sand: #d3b68e;
+  --taupe: #b39b7b;
+  --mist: #7c93a0;
+  --ink: #1c2436;
+  --line: rgba(196,167,97,.38);
+  --line-soft: rgba(196,167,97,.2);
+  --shadow-soft: 0 18px 40px rgba(14,18,30,.28);
+
+  --font-display: "Bodoni Moda", "Times New Roman", serif;
+  --font-body: "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Jost", "Segoe UI", sans-serif;
+  --font-script: "Bonheur Royale", cursive;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: 'Jost', Arial, sans-serif;
-  background-color: var(--cream);
-  color: var(--navy-deep);
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
 }
 
-* {
-  box-sizing: border-box;
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--navy-deep);
+  margin: 0 0 0.5em;
+  font-weight: 600;
+  line-height: 1.15;
 }
 
 a {
-  color: var(--navy);
-  text-decoration: underline;
+  color: inherit;
+  text-decoration: none;
 }
 
-a:hover {
-  color: var(--gold);
+.text-navy { color: var(--navy-deep); }
+.text-gold { color: var(--gold-deep); }
+.bg-navy { background: var(--navy-deep); color: var(--cream); }
+
+/* --- CARDS --- */
+.card {
+  position: relative;
+  background: var(--cream-card);
+  border: 1px solid var(--line);
+  padding: 2.1rem 1.8rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 2px;
 }
 
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border-top: 1px solid var(--gold-deep);
+  border-right: 1px solid var(--gold-deep);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* --- BUTTONS --- */
 .btn {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: none;
-  font-weight: 600;
+  gap: 0.5rem;
+  padding: 0.85rem 1.6rem;
+  border: 1px solid var(--gold);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 0;
 }
 
 .btn-primary {
-  background-color: var(--gold);
+  background: var(--gold);
   color: var(--navy-deep);
+  font-weight: 500;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--gold-light);
+.btn-primary:hover {
+  background: var(--gold-bright);
+  border-color: var(--gold-bright);
 }
 
 .btn-ghost {
-  background-color: transparent;
-  color: var(--navy);
-  border: 1px solid var(--navy);
+  background: transparent;
+  color: var(--navy-deep);
+  border-color: var(--gold-deep);
 }
 
-.btn-ghost:hover:not(:disabled) {
-  background-color: rgba(28, 36, 54, 0.05);
+.btn-ghost:hover {
+  background: rgba(160,130,63,.08);
 }
 
-.card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.text-gold {
-  color: var(--gold);
+/* --- STARS BACKGROUND (For Login Hero) --- */
+.stars-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 10% 20%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 80% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 45% 60%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 65% 80%, #fff, transparent),
+    radial-gradient(1px 1px at 25% 75%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 90% 55%, #fff, transparent),
+    radial-gradient(1px 1px at 55% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 5% 50%, #fff, transparent);
+  background-repeat: no-repeat;
+  animation: twinkle 5s ease-in-out infinite alternate;
 }
 
-.text-navy {
-  color: var(--navy);
+@keyframes twinkle {
+  from { opacity: 0.35; }
+  to { opacity: 0.75; }
 }
 
-.bg-navy {
-  background-color: var(--navy);
-  color: white;
+/* --- LAYOUT UTILS --- */
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* Forms */
+input, textarea, select {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--gold-deep);
+  background: var(--cream);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 0 2px rgba(196,167,97, 0.2);
+}
+
+input:disabled {
+  background: #e9e2d5;
+  color: #888;
 }

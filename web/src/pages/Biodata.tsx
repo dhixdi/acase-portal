@@ -255,9 +255,49 @@ export default function Biodata() {
           </div>
         ))}
 
+        {/* STEP 3: BUKTI MAHASISWA */}
+        <div className="card">
+          <h2 style={{ marginTop: 0 }}>3. Bukti Mahasiswa Aktif (Opsional)</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+            Unggah file PDF/JPG/PNG berisi hasil pindaian KTM atau tangkapan layar status mahasiswa aktif semua anggota (maks. 2 MB).
+          </p>
+          {status?.team?.student_proof_path ? (
+            <div style={{ padding: '0.75rem', background: '#e8f5e9', borderRadius: '4px', fontSize: '0.85rem', marginBottom: '1rem', color: 'green' }}>
+              ✅ Bukti telah diunggah.
+            </div>
+          ) : null}
+          {isEditable && (
+            <input 
+              type="file" 
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                if (file.size > 2 * 1024 * 1024) { alert('Ukuran file maksimal 2 MB'); e.target.value = ''; return; }
+                
+                // Generate path based on ext
+                const ext = file.name.split('.').pop()?.toLowerCase();
+                if (!['pdf', 'jpg', 'jpeg', 'png'].includes(ext!)) { alert('Format tidak didukung'); e.target.value = ''; return; }
+                const path = `${status?.team?.id}/proof.${ext === 'jpeg' ? 'jpg' : ext}`;
+                
+                // Upload to supabase storage 'student-proofs'
+                const { error: uploadError } = await supabase.storage.from('student-proofs').upload(path, file, { upsert: true });
+                if (uploadError) { alert('Gagal mengunggah bukti: ' + uploadError.message); return; }
+                
+                // Update DB
+                const { error: dbError } = await supabase.rpc('set_student_proof', { p_path: path });
+                if (dbError) { alert('Gagal menyimpan path bukti: ' + dbError.message); return; }
+                
+                alert('Bukti mahasiswa berhasil diunggah.');
+                window.location.reload(); // Quick refresh to update state
+              }}
+            />
+          )}
+        </div>
+
         {/* STEP 4: PERSETUJUAN */}
         <div className="card">
-          <h2 style={{ marginTop: 0 }}>3. Persetujuan</h2>
+          <h2 style={{ marginTop: 0 }}>4. Persetujuan</h2>
           <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
             <input type="checkbox" {...register('consent')} disabled={!isEditable || status?.team?.consent_given} style={{ marginTop: '0.25rem' }} />
             <span>Saya menyatakan data benar dan menyetujui ketentuan lomba serta penggunaan data pribadi untuk keperluan penyelenggaraan ASiQ 2026.</span>
