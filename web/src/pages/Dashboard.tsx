@@ -259,7 +259,7 @@ export default function Dashboard() {
           <ActionCard 
             step={4}
             title="Pitch Deck Finalis"
-            desc="Unggah presentasi format PDF khusus untuk tahap Grand Final."
+            desc="Unggah pitch deck anda dalam format PDF untuk Final Presetation"
             icon={<IconUpload />}
             locked={!status.stages['pitch_deck']?.is_open}
             done={false}

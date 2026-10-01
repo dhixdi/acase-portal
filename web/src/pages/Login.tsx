@@ -15,7 +15,8 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    const loginEmail = email.includes('@') ? email : `${email}@asiq.ugm.ac.id`;
+    const sanitizedInput = email.trim().toLowerCase();
+    const loginEmail = sanitizedInput.includes('@') ? sanitizedInput : `${sanitizedInput}@asiq.ugm.ac.id`;
 
     const { error } = await supabase.auth.signInWithPassword({
       email: loginEmail,
