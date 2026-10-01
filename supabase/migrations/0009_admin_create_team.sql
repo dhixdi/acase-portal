@@ -18,21 +18,21 @@ begin
     raise exception 'Akses ditolak';
   end if;
 
-  -- Cari angka terakhir dari acase.2026.XX
-  select coalesce(max(nullif(regexp_replace(code, '^acase\.2026\.', ''), '')::int), 10)
+  -- Cari angka terakhir dari ACASE-XXX (default 10 agar mulai dari 11)
+  select coalesce(max(nullif(regexp_replace(code, '^ACASE-', ''), '')::int), 10)
     into v_next_num
     from public.teams
-   where code like 'acase.2026.%';
+   where code like 'ACASE-%';
   
   v_next_num := v_next_num + 1;
-  v_username := 'acase.2026.' || v_next_num::text;
-  v_email := v_username || '@asiq.ugm.ac.id';
+  v_username := 'ACASE-' || lpad(v_next_num::text, 3, '0');
+  v_email := lower(v_username) || '@asiq.ugm.ac.id';
   
-  -- Generate random password 8 chars (alphanumeric uppercase/lowercase)
-  v_password := substring(replace(encode(gen_random_bytes(10), 'base64'), '/', 'A') from 1 for 8);
+  -- Generate random password 8 chars
+  v_password := substr(md5(random()::text), 1, 8);
   
   -- Encrypt password for GoTrue
-  v_encrypted_password := crypt(v_password, gen_salt('bf'));
+  v_encrypted_password := extensions.crypt(v_password, extensions.gen_salt('bf'));
 
   -- Insert auth.users
   insert into auth.users (

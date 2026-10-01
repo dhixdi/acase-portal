@@ -40,8 +40,9 @@ export function Layout() {
                   </Link>
                 ) : (
                   <>
-                    <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>
-                    <Link to="/profile" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Profil Tim</Link>
+                    <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s', textDecoration: 'none' }}>Dashboard</Link>
+                    <Link to="/profile" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s', textDecoration: 'none' }}>Profil Tim</Link>
+                    <Link to="/pengumuman" style={{ color: 'var(--cream)', fontSize: '1.2rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }} title="Pengumuman">🔔</Link>
                   </>
                 )}
                 <button onClick={handleLogout} style={{

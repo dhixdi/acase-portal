@@ -67,7 +67,7 @@ export default function Login() {
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <input
             type="text"
-            placeholder="Username (misal: acase.2026.11)"
+            placeholder="Username (misal: ACASE-011)"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required

@@ -228,7 +228,7 @@ export default function Dashboard() {
         <ActionCard 
           step={1}
           title="Identitas Tim"
-          desc="Lengkapi biodata setiap anggota tim Anda untuk keperluan administrasi."
+          desc="Lengkapi profil tim anda agar dapat mengakses materi dan mengunggah jawaban case."
           icon={<IconUser />}
           locked={false}
           done={team.biodata_completed}
@@ -238,7 +238,7 @@ export default function Dashboard() {
         <ActionCard 
           step={2}
           title="Case Release"
-          desc="Unduh soal kasus dan panduan penyelesaian yang diberikan oleh Tugu Insurance."
+          desc="Unduh Casebook dan Data untuk memulai pengerjaan case."
           icon={<IconDownload />}
           locked={!status.can_access_case}
           done={false}
@@ -248,7 +248,7 @@ export default function Dashboard() {
         <ActionCard 
           step={3}
           title="Pengumpulan Case"
-          desc="Unggah dokumen jawaban PDF Anda sebelum batas waktu berakhir."
+          desc="Unggah paper kelompok anda sebelum batas waktu berakhir."
           icon={<IconUpload />}
           locked={!status.can_submit_case}
           done={false}
