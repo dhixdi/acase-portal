@@ -170,7 +170,7 @@ export default function Dashboard() {
           color: var(--navy-deep);
         }
         .dash-action-card p {
-          color: var(--navy-soft);
+            color: var(--navy-deep);
           font-size: 0.95rem;
           line-height: 1.5;
           flex: 1;
@@ -273,17 +273,18 @@ export default function Dashboard() {
           <h3 style={{ margin: '0 0 0.2rem', color: 'var(--navy-deep)', fontSize: '1.3rem', fontWeight: 700 }}>Butuh Bantuan?</h3>
           <p style={{ margin: 0, color: 'var(--navy-deep)', fontSize: '0.95rem' }}>Tim kepanitiaan kami siap membantu Anda.</p>
         </div>
-        <div style={{ display: 'flex', gap: '2rem', fontFamily: 'var(--font-ui)' }}>
+        <div style={{ display: 'flex', gap: '2rem', fontFamily: 'var(--font-ui)', flexWrap: 'wrap' }}>
           <div>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--navy-soft)' }}>WhatsApp</span>
-            <strong style={{ color: 'var(--gold-deep)' }}>+62 813-8226-5484</strong>
+            <a href="https://wa.me/6285358139234" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-deep)', fontWeight: 700, textDecoration: 'none' }}>+62 853-5813-9234 (Arif)</a>
           </div>
           <div>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--navy-soft)' }}>Email</span>
-            <strong style={{ color: 'var(--gold-deep)' }}>asiqugm@gmail.com</strong>
+            <a href="mailto:asiqugm@gmail.com" style={{ color: 'var(--gold-deep)', fontWeight: 700, textDecoration: 'none' }}>asiqugm@gmail.com</a>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

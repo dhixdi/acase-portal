@@ -18,8 +18,8 @@ begin
     raise exception 'Akses ditolak';
   end if;
 
-  -- Cari angka terakhir dari ACASE-XXX (default 10 agar mulai dari 11)
-  select coalesce(max(nullif(regexp_replace(code, '^ACASE-', ''), '')::int), 10)
+  -- Cari angka terakhir dari ACASE-XXX (minimum 10 agar mulai dari 11)
+  select greatest(coalesce(max(nullif(regexp_replace(code, '^ACASE-', ''), '')::int), 10), 10)
     into v_next_num
     from public.teams
    where code like 'ACASE-%';
@@ -28,8 +28,8 @@ begin
   v_username := 'ACASE-' || lpad(v_next_num::text, 3, '0');
   v_email := lower(v_username) || '@asiq.ugm.ac.id';
   
-  -- Generate random password 8 chars
-  v_password := substr(md5(random()::text), 1, 8);
+  -- Generate random password 8 chars (kombinasi angka & huruf acak)
+  v_password := substring(replace(replace(encode(extensions.gen_random_bytes(10), 'base64'), '/', 'A'), '+', 'B') from 1 for 8);
   
   -- Encrypt password for GoTrue
   v_encrypted_password := extensions.crypt(v_password, extensions.gen_salt('bf'));

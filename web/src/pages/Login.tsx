@@ -20,7 +20,7 @@ export default function Login() {
 
     const { error } = await supabase.auth.signInWithPassword({
       email: loginEmail,
-      password,
+      password: password.trim(),
     });
 
     if (error) {
@@ -86,6 +86,18 @@ export default function Login() {
             {loading ? 'Masuk...' : 'Masuk'}
           </button>
         </form>
+
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255,255,255,0.15)', textAlign: 'center', fontFamily: 'var(--font-ui)' }}>
+          <p style={{ margin: '0 0 0.6rem', fontSize: '0.82rem', color: 'var(--cream)', opacity: 0.75 }}>Butuh bantuan? Hubungi panitia:</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+            <a href="mailto:asiqugm@gmail.com" style={{ color: 'var(--gold-bright)', fontSize: '0.88rem', textDecoration: 'none', fontWeight: 600 }}>
+              ✉ asiqugm@gmail.com
+            </a>
+            <a href="https://wa.me/6285358139234" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-bright)', fontSize: '0.88rem', textDecoration: 'none', fontWeight: 600 }}>
+              💬 +62 853-5813-9234 (Arif)
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -13,6 +13,10 @@ web/.env.*
 scripts/credentials-*.csv
 scripts/.env
 
+# Test & debug scripts sementara
+web/test-*.mjs
+web/debug-*.sql
+
 # Build output
 web/dist/
 

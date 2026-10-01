@@ -66,14 +66,11 @@ export default function CaseRelease() {
   return (
     <div>
       <h1 className="text-navy" style={{ marginBottom: '1rem' }}>Case Release</h1>
-      <p style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)', marginBottom: '2rem', fontSize: '1.05rem' }}>
-        Materi bersifat rahasia dan hanya untuk peserta ACASE 2026.
-      </p>
 
       {materialsLoading ? (
         <div style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)' }}>Memuat materi...</div>
       ) : materials?.length === 0 ? (
-        <div className="card" style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)' }}>Belum ada materi yang diunggah oleh panitia.</div>
+        <div className="card" style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)' }}>The Case is not available yet.</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {materials?.map((m: any) => (
