@@ -59,27 +59,39 @@ export default function Dashboard() {
           animation: fadeIn 0.6s ease-out forwards;
         }
 
-        .dash-welcome {
-          margin-bottom: 2rem;
+        .dash-hero {
+          background: linear-gradient(135deg, var(--navy-deep), var(--navy-soft));
+          border-radius: 12px;
+          padding: 3rem 2.5rem;
+          color: var(--cream);
+          margin-bottom: 2.5rem;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(22, 30, 48, 0.15);
         }
-        .dash-welcome h1 {
+        .dash-hero::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background-image: radial-gradient(1px 1px at 10% 20%, #fff, transparent), radial-gradient(1px 1px at 80% 15%, #fff, transparent), radial-gradient(1px 1px at 45% 60%, #fff, transparent);
+          opacity: 0.3;
+        }
+        .dash-hero-content {
+          position: relative;
+          z-index: 1;
+        }
+        .dash-hero h1 {
+          color: var(--cream);
           font-size: 2.2rem;
           font-weight: 700;
-          color: var(--navy-deep);
-          margin-bottom: 0.3rem;
+          margin-bottom: 0;
         }
-        .dash-welcome p {
-          color: var(--navy-deep);
-          font-size: 1rem;
-          font-family: var(--font-ui);
-          margin: 0;
-        }
-        .dash-welcome .team-code {
+        .team-code {
           font-family: var(--font-ui);
           font-size: 0.85rem;
           font-weight: 600;
-          color: var(--gold-deep);
-          letter-spacing: 0.05em;
+          color: var(--gold);
+          letter-spacing: 0.08em;
         }
 
         .dash-grid {
@@ -206,9 +218,10 @@ export default function Dashboard() {
         }
       `}</style>
 
-      <div className="dash-welcome">
-        <span className="team-code">{team.code}</span>
-        <h1>Selamat Datang, {team.name || team.code}</h1>
+      <div className="dash-hero">
+        <div className="dash-hero-content">
+          <h1>Selamat Datang, {team.name || team.code}</h1>
+        </div>
       </div>
 
       <div className="dash-grid">

@@ -65,23 +65,23 @@ export default function CaseRelease() {
 
   return (
     <div>
-      <h1 className="text-navy">Materi Case</h1>
-      <p style={{ color: 'var(--muted)', marginBottom: '2rem' }}>
+      <h1 className="text-navy" style={{ marginBottom: '1rem' }}>Case Release</h1>
+      <p style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)', marginBottom: '2rem', fontSize: '1.05rem' }}>
         Materi bersifat rahasia dan hanya untuk peserta ACASE 2026.
       </p>
 
       {materialsLoading ? (
-        <div>Memuat materi...</div>
+        <div style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)' }}>Memuat materi...</div>
       ) : materials?.length === 0 ? (
-        <div className="card">Belum ada materi yang diunggah oleh panitia.</div>
+        <div className="card" style={{ fontFamily: 'var(--font-ui)', color: 'var(--navy-deep)' }}>Belum ada materi yang diunggah oleh panitia.</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {materials?.map((m: any) => (
             <div key={m.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 style={{ margin: '0 0 0.5rem 0' }}>{m.title}</h3>
-                {m.description && <p style={{ margin: '0 0 0.5rem 0', color: 'var(--muted)', fontSize: '0.9rem' }}>{m.description}</p>}
-                <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--navy-deep)', fontWeight: 700, fontSize: '1.3rem' }}>{m.title}</h3>
+                {m.description && <p style={{ margin: '0 0 0.5rem 0', color: 'var(--navy-deep)', fontFamily: 'var(--font-ui)', fontSize: '0.95rem' }}>{m.description}</p>}
+                <div style={{ fontFamily: 'var(--font-ui)', fontSize: '0.85rem', color: 'var(--navy-soft)', fontWeight: 500 }}>
                   {m.file_name} • {Math.round(m.file_size / 1024)} KB
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function CaseRelease() {
                 disabled={downloadingId === m.id}
                 className="btn btn-primary"
               >
-                {downloadingId === m.id ? 'Mengunduh...' : 'Unduh'}
+                {downloadingId === m.id ? 'Mengunduh...' : 'UNDUH'}
               </button>
             </div>
           ))}
