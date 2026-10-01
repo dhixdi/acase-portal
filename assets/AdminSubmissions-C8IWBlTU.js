@@ -1,1 +1,0 @@
-import{p as e}from"./index-B1L2IVPE.js";import{t}from"./SubmissionsAdmin-ZZxs33AK.js";var n=e();function r(){return(0,n.jsx)(t,{stage:`case_submission`,title:`Monitoring Submission Case`})}export{r as default};
