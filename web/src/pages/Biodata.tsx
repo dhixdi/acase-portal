@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { useMyStatus } from '../hooks/useMyStatus';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 type Member = {
   is_leader: boolean;
@@ -28,6 +29,12 @@ export default function Biodata() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (status?.team?.biodata_completed) {
+      navigate('/profile', { replace: true });
+    }
+  }, [status, navigate]);
 
   const { register, control, handleSubmit, watch, reset, trigger } = useForm<BiodataForm>({
     defaultValues: {
@@ -104,7 +111,7 @@ export default function Biodata() {
     if (valid) {
       setStep(s => Math.min(maxStep, s + 1));
     } else {
-      alert('Mohon lengkapi semua isian yang wajib dengan benar sebelum melanjutkan.');
+      toast.error('Mohon lengkapi semua isian yang wajib dengan benar sebelum melanjutkan.');
     }
   };
 
@@ -128,10 +135,10 @@ export default function Biodata() {
     setSaving(false);
 
     if (error) {
-      alert('Gagal menyimpan: ' + error.message);
+      toast.error('Gagal menyimpan: ' + error.message);
     } else {
-      alert('Biodata berhasil disimpan!');
-      navigate('/');
+      toast.success('Biodata berhasil disimpan!');
+      navigate('/profile');
     }
   };
 
@@ -237,13 +244,15 @@ export default function Biodata() {
 
         {/* LAST STEP: PERSETUJUAN */}
         <div style={{ display: step === maxStep ? 'block' : 'none' }}>
-          <h2 style={{ marginTop: 0 }}>Langkah {maxStep}: Konfirmasi</h2>
-          <p style={{ color: 'var(--mist)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Harap periksa kembali isian Anda. Centang kotak persetujuan untuk menyimpan data secara permanen.</p>
+          <h2 style={{ marginTop: 0 }}>Langkah {maxStep}: Konfirmasi Final</h2>
+          <div style={{ background: '#ffebee', color: '#c62828', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+            <strong>PERHATIAN:</strong> Harap periksa kembali seluruh isian Anda. Setelah dikirim, data biodata ini <strong>TIDAK DAPAT DIUBAH LAGI</strong> dan akan terkunci permanen.
+          </div>
           
           <div style={{ padding: '1rem', background: 'rgba(196,167,97,.08)', borderLeft: '3px solid var(--gold)', marginBottom: '1.5rem' }}>
             <label style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', cursor: isEditable ? 'pointer' : 'default' }}>
               <input type="checkbox" {...register('consent', { required: true })} disabled={!isEditable || teamData?.consent_given} style={{ marginTop: '0.25rem', transform: 'scale(1.2)' }} />
-              <span style={{ fontSize: '0.95rem' }}>Saya menyatakan bahwa seluruh data yang diisi adalah benar, dan menyetujui ketentuan lomba serta penggunaan data pribadi untuk keperluan administrasi dan penyelenggaraan ASiQ 2026.</span>
+              <span style={{ fontSize: '0.95rem' }}>Saya menyatakan bahwa seluruh data yang diisi adalah benar, dan saya mengerti bahwa data ini tidak dapat diubah setelah disubmit. Saya menyetujui ketentuan lomba serta penggunaan data pribadi untuk keperluan administrasi ASiQ 2026.</span>
             </label>
           </div>
         </div>

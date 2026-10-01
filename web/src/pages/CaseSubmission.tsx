@@ -9,7 +9,7 @@ export default function CaseSubmission() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h1 className="text-navy">Pengumpulan Case</h1>
+      <h1 className="text-navy">Case Submission</h1>
       
       <SubmissionPanel 
         stageKey="case_submission"

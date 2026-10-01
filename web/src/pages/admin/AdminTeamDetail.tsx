@@ -2,6 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function AdminTeamDetail() {
   const { id } = useParams<{ id: string }>();
@@ -46,53 +47,87 @@ export default function AdminTeamDetail() {
     }
   });
 
-  const toggleStatus = async (field: 'is_active' | 'payment_verified', current: boolean) => {
-    if (field === 'is_active' && current) {
-      if (!confirm('Yakin menonaktifkan akun ini? Peserta tidak akan bisa mengakses portal.')) return;
-    }
-    await supabase.from('teams').update({ [field]: !current }).eq('id', id);
+  // --- Actions with toast confirmations ---
+
+  const doToggleStatus = async (field: 'is_active' | 'payment_verified', current: boolean) => {
+    const { error } = await supabase.from('teams').update({ [field]: !current }).eq('id', id);
+    if (error) return toast.error('Gagal: ' + error.message);
+    toast.success('Status berhasil diubah');
     queryClient.invalidateQueries({ queryKey: ['adminTeam', id] });
     queryClient.invalidateQueries({ queryKey: ['adminTeams'] });
   };
 
-  const saveNote = async () => {
-    await supabase.from('team_admin_notes').upsert({ team_id: id, note });
-    queryClient.invalidateQueries({ queryKey: ['adminTeamNote', id] });
-    alert('Catatan disimpan');
+  const toggleStatus = (field: 'is_active' | 'payment_verified', current: boolean) => {
+    if (field === 'is_active' && current) {
+      toast((t) => (
+        <div style={{ fontFamily: 'var(--font-ui)' }}>
+          <strong>Yakin menonaktifkan akun ini?</strong>
+          <p style={{ margin: '0.5rem 0', fontSize: '0.85rem' }}>Peserta tidak akan bisa mengakses portal.</p>
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+            <button onClick={() => toast.dismiss(t.id)} style={{ padding: '0.3rem 0.8rem', border: '1px solid #ccc', background: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Batal</button>
+            <button onClick={() => { toast.dismiss(t.id); doToggleStatus(field, current); }} style={{ padding: '0.3rem 0.8rem', border: 'none', background: '#d32f2f', color: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Nonaktifkan</button>
+          </div>
+        </div>
+      ), { duration: Infinity });
+    } else {
+      doToggleStatus(field, current);
+    }
   };
 
-  const handleDeleteTeam = async () => {
-    if (!confirm('PERINGATAN KRITIS: Anda yakin ingin menghapus tim ini sepenuhnya? Semua data biodata dan file submission juga akan terhapus. Tindakan ini TIDAK DAPAT DIBATALKAN.')) return;
-    
-    // Call RPC to delete from auth.users (which cascades)
+  const saveNote = async () => {
+    const { error } = await supabase.from('team_admin_notes').upsert({ team_id: id, note });
+    if (error) return toast.error('Gagal menyimpan: ' + error.message);
+    queryClient.invalidateQueries({ queryKey: ['adminTeamNote', id] });
+    toast.success('Catatan internal disimpan');
+  };
+
+  const doDeleteTeam = async () => {
     const { error } = await supabase.rpc('admin_delete_team', { p_team_id: id });
     if (error) {
-      alert('Gagal menghapus tim: ' + error.message);
+      toast.error('Gagal menghapus tim: ' + error.message);
     } else {
-      alert('Tim berhasil dihapus.');
+      toast.success('Tim berhasil dihapus');
       queryClient.invalidateQueries({ queryKey: ['adminTeams'] });
       navigate('/admin/teams');
     }
   };
 
-  const handleDeleteSubmission = async (s: any) => {
-    if (!confirm(`Yakin ingin menghapus file ${s.file_name} pada tahap ${s.stage}?`)) return;
+  const handleDeleteTeam = () => {
+    toast((t) => (
+      <div style={{ fontFamily: 'var(--font-ui)' }}>
+        <strong style={{ color: '#d32f2f' }}>⚠️ Peringatan Kritis</strong>
+        <p style={{ margin: '0.5rem 0', fontSize: '0.85rem' }}>Anda yakin ingin menghapus tim ini sepenuhnya? Semua data dan file submission akan terhapus permanen.</p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <button onClick={() => toast.dismiss(t.id)} style={{ padding: '0.3rem 0.8rem', border: '1px solid #ccc', background: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Batal</button>
+          <button onClick={() => { toast.dismiss(t.id); doDeleteTeam(); }} style={{ padding: '0.3rem 0.8rem', border: 'none', background: '#d32f2f', color: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Hapus Tim</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
 
-    // Delete file from storage
+  const doDeleteSubmission = async (s: any) => {
     const { error: storageError } = await supabase.storage.from('submissions').remove([s.file_path]);
-    if (storageError) {
-      alert('Gagal menghapus file dari storage: ' + storageError.message);
-      return;
-    }
-    
-    // Delete record from DB
+    if (storageError) return toast.error('Gagal menghapus file: ' + storageError.message);
+
     const { error: dbError } = await supabase.from('submissions').delete().eq('id', s.id);
-    if (dbError) {
-      alert('Gagal menghapus record: ' + dbError.message);
-    } else {
-      queryClient.invalidateQueries({ queryKey: ['adminTeamSubmissions', id] });
-      queryClient.invalidateQueries({ queryKey: ['adminTeamHistory', id] });
-    }
+    if (dbError) return toast.error('Gagal menghapus record: ' + dbError.message);
+
+    toast.success('File berhasil dihapus');
+    queryClient.invalidateQueries({ queryKey: ['adminTeamSubmissions', id] });
+    queryClient.invalidateQueries({ queryKey: ['adminTeamHistory', id] });
+  };
+
+  const handleDeleteSubmission = (s: any) => {
+    toast((t) => (
+      <div style={{ fontFamily: 'var(--font-ui)' }}>
+        <strong>Hapus file submission?</strong>
+        <p style={{ margin: '0.5rem 0', fontSize: '0.85rem' }}>File <strong>{s.file_name}</strong> pada tahap {s.stage} akan dihapus permanen.</p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <button onClick={() => toast.dismiss(t.id)} style={{ padding: '0.3rem 0.8rem', border: '1px solid #ccc', background: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Batal</button>
+          <button onClick={() => { toast.dismiss(t.id); doDeleteSubmission(s); }} style={{ padding: '0.3rem 0.8rem', border: 'none', background: '#d32f2f', color: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Hapus File</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   if (isLoading) return <div>Memuat detail tim...</div>;
@@ -210,7 +245,7 @@ function OverrideDeadlineForm({ teamId }: { teamId: string }) {
   });
 
   const handleSave = async () => {
-    if (!closesAt) return alert('Pilih waktu penutupan.');
+    if (!closesAt) return toast.error('Pilih waktu penutupan');
     setSaving(true);
     const { error } = await supabase.from('deadline_overrides').upsert({
       team_id: teamId,
@@ -219,18 +254,29 @@ function OverrideDeadlineForm({ teamId }: { teamId: string }) {
       note
     });
     setSaving(false);
-    if (error) alert('Gagal: ' + error.message);
+    if (error) toast.error('Gagal: ' + error.message);
     else {
       setClosesAt(''); setOverrideNote('');
       queryClient.invalidateQueries({ queryKey: ['adminTeamOverrides', teamId] });
-      alert('Override disimpan.');
+      toast.success('Override disimpan');
     }
   };
 
-  const handleDelete = async (stageKey: string) => {
-    if (!confirm('Hapus override deadline ini?')) return;
-    await supabase.from('deadline_overrides').delete().eq('team_id', teamId).eq('stage', stageKey);
-    queryClient.invalidateQueries({ queryKey: ['adminTeamOverrides', teamId] });
+  const handleDelete = (stageKey: string) => {
+    toast((t) => (
+      <div style={{ fontFamily: 'var(--font-ui)' }}>
+        <strong>Hapus override deadline ini?</strong>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+          <button onClick={() => toast.dismiss(t.id)} style={{ padding: '0.3rem 0.8rem', border: '1px solid #ccc', background: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Batal</button>
+          <button onClick={async () => {
+            toast.dismiss(t.id);
+            await supabase.from('deadline_overrides').delete().eq('team_id', teamId).eq('stage', stageKey);
+            queryClient.invalidateQueries({ queryKey: ['adminTeamOverrides', teamId] });
+            toast.success('Override dihapus');
+          }} style={{ padding: '0.3rem 0.8rem', border: 'none', background: '#d32f2f', color: 'white', cursor: 'pointer', borderRadius: '4px', fontSize: '0.8rem' }}>Hapus</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   return (

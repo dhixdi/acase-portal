@@ -1,9 +1,11 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Biodata from './pages/Biodata';
+import Profile from './pages/Profile';
 import CaseRelease from './pages/CaseRelease';
 import CaseSubmission from './pages/CaseSubmission';
 import { useSession } from './hooks/useSession';
@@ -47,6 +49,7 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <HashRouter>
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { fontFamily: 'var(--font-ui)', fontSize: '0.9rem' } }} />
       <Routes>
         {/* Participant routes */}
         <Route path="/" element={<Layout />}>
@@ -55,6 +58,7 @@ export default function App() {
 
           <Route index element={<RequireAuth><Dashboard /></RequireAuth>} />
           <Route path="biodata" element={<RequireAuth><Biodata /></RequireAuth>} />
+          <Route path="profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="case" element={<RequireAuth><CaseRelease /></RequireAuth>} />
           <Route path="submission" element={<RequireAuth><CaseSubmission /></RequireAuth>} />
           <Route path="pitch-deck" element={<RequireAuth><PitchDeck /></RequireAuth>} />

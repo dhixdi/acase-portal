@@ -39,7 +39,10 @@ export function Layout() {
                     ⚙️ Panel Admin
                   </Link>
                 ) : (
-                  <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>
+                  <>
+                    <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>
+                    <Link to="/profile" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Profil Tim</Link>
+                  </>
                 )}
                 <button onClick={handleLogout} style={{
                   fontFamily: 'var(--font-ui)', fontSize: '0.9rem',
