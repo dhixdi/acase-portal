@@ -1,0 +1,1 @@
+import{f as e}from"./index-CfbZDNPA.js";import{t}from"./SubmissionsAdmin-EEi8lqMX.js";var n=e();function r(){return(0,n.jsx)(t,{stage:`pitch_deck`,title:`Monitoring Pitch Deck`})}export{r as default};
