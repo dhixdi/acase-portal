@@ -53,10 +53,10 @@ export default function Login() {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
           <img src={logoUrl} alt="ACASE Logo" style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
         </div>
-        <h1 style={{ fontFamily: 'var(--font-display)', color: 'var(--navy-deep)', marginBottom: '1.5rem' }}>
-          Portal Peserta<br/>
-          <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold-deep)', fontSize: '1.4rem' }}>ACASE 2026</span>
+        <h1 style={{ fontFamily: 'var(--font-display)', color: 'var(--navy-deep)', marginBottom: '0.25rem', letterSpacing: '.04em', fontSize: '2rem' }}>
+          ACASE <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold-deep)', fontSize: '1.9rem', fontWeight: 'normal' }}>Quest</span>
         </h1>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mist)', marginTop: 0, marginBottom: '1.75rem' }}>ACTSCI UGM · 2026</p>
         
         {error && (
           <div style={{ background: '#ffebee', color: '#c62828', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.9rem', fontFamily: 'var(--font-ui)' }}>

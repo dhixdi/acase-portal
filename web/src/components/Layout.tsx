@@ -21,11 +21,14 @@ export function Layout() {
         backdropFilter: 'blur(6px)'
       }}>
         <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '74px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <img src={logoUrl} alt="Logo" style={{ height: '42px', width: '42px', objectFit: 'contain' }} />
-            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-              <span style={{ fontFamily: 'var(--font-display)', color: 'var(--cream)', fontSize: '1.15rem', letterSpacing: '.02em' }}>Portal Peserta</span>
-              <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold-bright)', fontSize: '1.05rem', marginTop: '-2px' }}>ACASE 2026</span>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img src={logoUrl} alt="Logo" style={{ height: '44px', width: '44px', objectFit: 'contain' }} />
+            <div style={{ lineHeight: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem' }}>
+                <span style={{ fontFamily: 'var(--font-display)', color: 'var(--cream)', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '.04em' }}>ACASE</span>
+                <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold)', fontSize: '1.35rem' }}>Quest</span>
+              </div>
+              <span style={{ display: 'block', fontFamily: 'var(--font-ui)', color: 'rgba(247,240,227,.45)', fontSize: '0.7rem', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: '3px' }}>ACTSCI UGM · 2026</span>
             </div>
           </Link>
           
@@ -58,30 +61,6 @@ export function Layout() {
       <main className="wrap" style={{ flex: 1, padding: '3rem 1.25rem', width: '100%' }}>
         <Outlet />
       </main>
-
-      <footer style={{ background: 'var(--navy-deep)', color: '#c6ccd6', borderTop: '1px solid var(--line)' }}>
-        <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', padding: '2.4rem 0', flexWrap: 'wrap', gap: '2rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <span style={{ fontSize: '2.2rem', fontFamily: 'var(--font-script)', color: 'var(--gold)', lineHeight: 1 }}>ASiQ 2026</span>
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: '0.8rem', fontWeight: 300, color: '#a9b1bd', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Presented by</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.3rem' }}>
-              <img src={logoUrl} alt="Logo ASiQ" style={{ height: '50px', objectFit: 'contain' }} />
-            </div>
-          </div>
-          
-          <div style={{ fontFamily: 'var(--font-ui)' }}>
-            <h4 style={{ color: 'var(--cream)', fontSize: '0.9rem', fontWeight: 500, marginBottom: '1rem' }}>Kontak Kami</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.92rem' }}>
-              <li style={{ marginBottom: '0.6rem' }}><a href="mailto:asiqugm@gmail.com">asiqugm@gmail.com</a></li>
-              <li>+62 813-8226-5484 (Khisa)</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="wrap" style={{ borderTop: '1px solid var(--line-soft)', padding: '1.4rem 0', fontFamily: 'var(--font-ui)', fontSize: '0.82rem', color: '#8a93a0' }}>
-          &copy; 2026 ASiQ. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
