@@ -32,10 +32,10 @@ export default function AdminTeams() {
     const { data: members, error } = await supabase.from('team_members').select('*').order('team_id').order('member_no');
     if (error) { alert('Gagal mengambil data: ' + error.message); return; }
 
-    const header = 'Kode Tim,Nama Kelompok,Kategori,No,Ketua,Nama,NIM,Kampus,Prodi,Jenjang,Angkatan,Email,WhatsApp';
+    const header = 'Kode Tim,Nama Kelompok,No,Ketua,Nama,NIM,Kampus,Prodi,Jenjang,Angkatan,Email,WhatsApp';
     const rows = members.map(m => {
       const team = teams?.find(t => t.id === m.team_id);
-      return [team?.code, team?.name, team?.category, m.member_no, m.is_leader ? 'Ya' : '', m.full_name, m.nim, m.institution, m.major, m.degree_level, m.batch, m.email, m.whatsapp]
+      return [team?.code, team?.name, m.member_no, m.is_leader ? 'Ya' : '', m.full_name, m.nim, m.institution, m.major, m.degree_level, m.batch, m.email, m.whatsapp]
         .map(v => `"${String(v ?? '').replace(/"/g, '""')}"`)
         .join(',');
     });
@@ -80,7 +80,7 @@ export default function AdminTeams() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
           <thead><tr style={{ background: 'var(--navy)', color: 'white' }}>
             <th style={th}>Kode</th><th style={th}>Nama</th><th style={th}>Kampus</th>
-            <th style={th}>Ketua</th><th style={th}>Kategori</th><th style={th}>Bayar</th>
+            <th style={th}>Ketua</th>
             <th style={th}>Biodata</th><th style={th}>Case Submit</th><th style={th}>Aktif</th>
             <th style={th}>Aksi</th>
           </tr></thead>
@@ -91,8 +91,6 @@ export default function AdminTeams() {
                 <td style={td}>{t.name || <span style={{ color: 'var(--muted)' }}>-</span>}</td>
                 <td style={td}>{t.institutions || '-'}</td>
                 <td style={td}>{t.leader_name || '-'}</td>
-                <td style={td}><span style={{ padding: '0.15rem 0.4rem', background: t.category === 'early_bird' ? '#e3f2fd' : '#f5f5f5', borderRadius: '4px', fontSize: '0.8rem' }}>{t.category}</span></td>
-                <td style={td}>{t.payment_verified ? '✅' : '❌'}</td>
                 <td style={td}>{t.biodata_completed_at ? '✅' : '❌'}</td>
                 <td style={td}>{t.case_submitted_at ? new Date(t.case_submitted_at).toLocaleDateString('id-ID') : '❌'}</td>
                 <td style={td}>{t.is_active ? '✅' : '❌'}</td>

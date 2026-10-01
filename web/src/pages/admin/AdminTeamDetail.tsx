@@ -49,7 +49,7 @@ export default function AdminTeamDetail() {
 
   // --- Actions with toast confirmations ---
 
-  const doToggleStatus = async (field: 'is_active' | 'payment_verified', current: boolean) => {
+  const doToggleStatus = async (field: 'is_active', current: boolean) => {
     const { error } = await supabase.from('teams').update({ [field]: !current }).eq('id', id);
     if (error) return toast.error('Gagal: ' + error.message);
     toast.success('Status berhasil diubah');
@@ -57,7 +57,7 @@ export default function AdminTeamDetail() {
     queryClient.invalidateQueries({ queryKey: ['adminTeams'] });
   };
 
-  const toggleStatus = (field: 'is_active' | 'payment_verified', current: boolean) => {
+  const toggleStatus = (field: 'is_active', current: boolean) => {
     if (field === 'is_active' && current) {
       toast((t) => (
         <div style={{ fontFamily: 'var(--font-ui)' }}>
@@ -147,9 +147,6 @@ export default function AdminTeamDetail() {
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button onClick={() => toggleStatus('is_active', team.is_active)} className={`btn ${team.is_active ? 'btn-ghost' : 'btn-primary'}`} style={{ padding: '0.5rem 1rem' }}>
             {team.is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun'}
-          </button>
-          <button onClick={() => toggleStatus('payment_verified', team.payment_verified)} className="btn btn-ghost" style={{ padding: '0.5rem 1rem' }}>
-            Pembayaran: {team.payment_verified ? '✅ Lunas' : '❌ Belum'}
           </button>
           <button onClick={handleDeleteTeam} className="btn btn-ghost" style={{ padding: '0.5rem 1rem', color: '#d32f2f', borderColor: '#d32f2f' }}>
             Hapus Tim

@@ -177,7 +177,7 @@ export default function Biodata() {
         
         {/* STEP 1: INFO TIM */}
         <div style={{ display: step === 1 ? 'block' : 'none' }}>
-          <h2 style={{ marginTop: 0 }}>Langkah 1: Identitas Tim</h2>
+          <h2 style={{ marginTop: 0 }}>Identitas Tim</h2>
           <p style={{ color: 'var(--mist)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Tentukan nama kelompok yang merepresentasikan semangat Anda.</p>
           
           {renderInput('Nama Kelompok (3-60 karakter)', register('name', { required: true, minLength: 3, maxLength: 60 }))}

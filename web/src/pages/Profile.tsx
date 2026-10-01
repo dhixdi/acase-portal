@@ -59,10 +59,6 @@ export default function Profile() {
             <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-deep)' }}>{team.code}</div>
           </div>
           <div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--navy-soft)', marginBottom: '0.2rem' }}>Kategori</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-deep)', textTransform: 'capitalize' }}>{team.category.replace('_', ' ')}</div>
-          </div>
-          <div>
             <div style={{ fontSize: '0.85rem', color: 'var(--navy-soft)', marginBottom: '0.2rem' }}>Jumlah Anggota</div>
             <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--navy-deep)' }}>{team.team_size} Orang</div>
           </div>

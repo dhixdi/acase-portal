@@ -53,8 +53,6 @@ for (const r of rows) {
     user_id: created.user.id,
     code,
     login_email: email,
-    category: r.category === 'early_bird' ? 'early_bird' : 'regular',
-    payment_verified: String(r.payment_verified).toLowerCase() === 'true',
   });
   if (tErr) {
     await sb.auth.admin.deleteUser(created.user.id);   // rollback

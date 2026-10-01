@@ -51,8 +51,8 @@ begin
   );
 
   -- Insert public.teams
-  insert into public.teams (user_id, code, login_email, category, payment_verified)
-  values (v_user_id, v_username, v_email, 'regular', true);
+  insert into public.teams (user_id, code, login_email)
+  values (v_user_id, v_username, v_email);
 
   return json_build_object(
     'username', v_username,
