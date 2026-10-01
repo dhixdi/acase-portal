@@ -1,10 +1,12 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
+import { useIsAdmin } from '../hooks/useIsAdmin';
 import { supabase } from '../lib/supabase';
 import logoUrl from '../assets/logo.png';
 
 export function Layout() {
   const { session } = useSession();
+  const { data: isAdmin } = useIsAdmin(!!session);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -28,14 +30,20 @@ export function Layout() {
                 <span style={{ fontFamily: 'var(--font-display)', color: 'var(--cream)', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '.04em' }}>ACASE</span>
                 <span style={{ fontFamily: 'var(--font-script)', color: 'var(--gold)', fontSize: '1.35rem' }}>Quest</span>
               </div>
-              <span style={{ display: 'block', fontFamily: 'var(--font-ui)', color: 'rgba(247,240,227,.45)', fontSize: '0.7rem', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: '3px' }}>ACTSCI UGM · 2026</span>
             </div>
           </Link>
           
-          <nav style={{ display: 'flex', gap: '1.9rem', alignItems: 'center', fontFamily: 'var(--font-ui)' }}>
+          <nav style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', fontFamily: 'var(--font-ui)' }}>
             {session ? (
               <>
-                <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>
+                {isAdmin ? (
+                  /* Admin: tampilkan link ke panel admin, bukan dashboard peserta */
+                  <Link to="/admin" style={{ color: 'var(--gold-bright)', fontSize: '0.97rem', fontWeight: 500 }}>
+                    ⚙️ Panel Admin
+                  </Link>
+                ) : (
+                  <Link to="/" style={{ color: 'var(--cream)', fontSize: '0.97rem', transition: 'color 0.2s' }}>Dashboard</Link>
+                )}
                 <button onClick={handleLogout} style={{
                   fontFamily: 'var(--font-ui)', fontSize: '0.9rem',
                   color: 'var(--navy-deep)', background: 'var(--gold)',

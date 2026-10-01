@@ -25,9 +25,12 @@ const AdminFinalists = lazy(() => import('./pages/admin/AdminFinalists'));
 const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'));
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useSession();
-  if (loading) return <div>Memuat...</div>;
+  const { session, loading: sessionLoading } = useSession();
+  const { data: isAdmin, isLoading: adminLoading } = useIsAdmin(!!session);
+
+  if (sessionLoading || adminLoading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Memuat...</div>;
   if (!session) return <Navigate to="/login" replace />;
+  if (isAdmin) return <Navigate to="/admin" replace />;
   return <>{children}</>;
 }
 
