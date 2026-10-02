@@ -29,7 +29,7 @@ export interface MyStatus {
   }>;
 }
 
-export function useMyStatus(enabled: boolean = true) {
+export function useMyStatus(enabled: boolean = true, refetchOnFocus: boolean = true) {
   return useQuery({
     queryKey: ['myStatus'],
     queryFn: async () => {
@@ -38,5 +38,6 @@ export function useMyStatus(enabled: boolean = true) {
       return data as MyStatus;
     },
     enabled,
+    refetchOnWindowFocus: refetchOnFocus,
   });
 }

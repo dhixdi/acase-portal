@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useMyStatus } from "../hooks/useMyStatus";
 import { supabase } from "../lib/supabase";
@@ -24,14 +24,18 @@ type BiodataForm = {
   consent: boolean;
 };
 
+const DRAFT_KEY = "biodata_draft";
+
 export default function Biodata() {
-  const { data: status, isLoading } = useMyStatus();
+  const { data: status, isLoading } = useMyStatus(true, false);
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
     if (status?.team?.biodata_completed) {
+      sessionStorage.removeItem(DRAFT_KEY);
       navigate("/profile", { replace: true });
     }
   }, [status, navigate]);
@@ -83,59 +87,84 @@ export default function Biodata() {
   const { fields, replace } = useFieldArray({ control, name: "members" });
   const teamSize = watch("team_size");
 
+  // 1) Pulihkan draft (jika ada)
   useEffect(() => {
-    if (status?.team) {
-      const t = status.team as any;
-      const formatWA = (wa: string) =>
-        wa ? wa.replace(/^\+62/, "").replace(/^0/, "") : "";
-
-      reset({
-        name: t.name || "",
-        team_size: t.team_size || 3,
-        members:
-          t.members && t.members.length > 0
-            ? t.members.map((m: any) => ({
-                ...m,
-                whatsapp: formatWA(m.whatsapp),
-              }))
-            : [
-                {
-                  is_leader: true,
-                  full_name: "",
-                  nim: "",
-                  institution: "",
-                  major: "",
-                  degree_level: "S1",
-                  batch: 2023,
-                  email: "",
-                  whatsapp: "",
-                },
-                {
-                  is_leader: false,
-                  full_name: "",
-                  nim: "",
-                  institution: "",
-                  major: "",
-                  degree_level: "S1",
-                  batch: 2023,
-                  email: "",
-                  whatsapp: "",
-                },
-                {
-                  is_leader: false,
-                  full_name: "",
-                  nim: "",
-                  institution: "",
-                  major: "",
-                  degree_level: "S1",
-                  batch: 2023,
-                  email: "",
-                  whatsapp: "",
-                },
-              ],
-        consent: !!t.consent_given,
-      });
+    if (initialized.current) return;
+    const saved = sessionStorage.getItem(DRAFT_KEY);
+    if (saved) {
+      try {
+        reset(JSON.parse(saved));
+        initialized.current = true;
+      } catch {
+        sessionStorage.removeItem(DRAFT_KEY);
+      }
     }
+  }, [reset]);
+
+  // 2) Simpan draft setiap ada perubahan (consent selalu false)
+  useEffect(() => {
+    const sub = watch((value) => {
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...value, consent: false }));
+      } catch { /* ignore quota errors */ }
+    });
+    return () => sub.unsubscribe();
+  }, [watch]);
+
+  // 3) Reset dari server hanya sekali (jika belum ada draft)
+  useEffect(() => {
+    if (!status?.team || initialized.current) return;
+    initialized.current = true;
+    const t = status.team as any;
+    const formatWA = (wa: string) =>
+      wa ? wa.replace(/^\+62/, "").replace(/^0/, "") : "";
+
+    reset({
+      name: t.name || "",
+      team_size: t.team_size || 3,
+      members:
+        t.members && t.members.length > 0
+          ? t.members.map((m: any) => ({
+              ...m,
+              whatsapp: formatWA(m.whatsapp),
+            }))
+          : [
+              {
+                is_leader: true,
+                full_name: "",
+                nim: "",
+                institution: "",
+                major: "",
+                degree_level: "S1",
+                batch: 2023,
+                email: "",
+                whatsapp: "",
+              },
+              {
+                is_leader: false,
+                full_name: "",
+                nim: "",
+                institution: "",
+                major: "",
+                degree_level: "S1",
+                batch: 2023,
+                email: "",
+                whatsapp: "",
+              },
+              {
+                is_leader: false,
+                full_name: "",
+                nim: "",
+                institution: "",
+                major: "",
+                degree_level: "S1",
+                batch: 2023,
+                email: "",
+                whatsapp: "",
+              },
+            ],
+      consent: !!t.consent_given,
+    });
   }, [status, reset]);
 
   // Handle team size changes
@@ -203,28 +232,38 @@ export default function Biodata() {
 
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
 
+  const onInvalid = (errors: any) => {
+    if (errors.consent) toast.error("Centang persetujuan terlebih dahulu.");
+    else toast.error("Masih ada isian yang belum valid. Periksa kembali semua langkah.");
+  };
+
   const onSubmit = async (data: BiodataForm) => {
     if (!isEditable) return;
     setSaving(true);
+    try {
+      const formattedMembers = data.members.map((m) => ({
+        ...m,
+        whatsapp: "+62" + m.whatsapp.replace(/\D/g, "").replace(/^62/, "").replace(/^0/, ""),
+      }));
 
-    const formattedMembers = data.members.map((m) => ({
-      ...m,
-      whatsapp: `+62${m.whatsapp.replace(/^0/, "")}`,
-    }));
+      const { error } = await supabase.rpc("save_team_biodata", {
+        p_name: data.name,
+        p_team_size: data.team_size,
+        p_members: formattedMembers,
+        p_consent: data.consent,
+      });
 
-    const { error } = await supabase.rpc("save_team_biodata", {
-      p_name: data.name,
-      p_team_size: data.team_size,
-      p_members: formattedMembers,
-      p_consent: data.consent,
-    });
-    setSaving(false);
-
-    if (error) {
-      toast.error("Gagal menyimpan: " + error.message);
-    } else {
-      toast.success("Biodata berhasil disimpan!");
-      navigate("/profile");
+      if (error) {
+        toast.error("Gagal menyimpan: " + error.message, { duration: 8000 });
+      } else {
+        sessionStorage.removeItem(DRAFT_KEY);
+        toast.success("Biodata berhasil disimpan!");
+        navigate("/profile");
+      }
+    } catch (e: any) {
+      toast.error("Koneksi bermasalah: " + e.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -248,7 +287,6 @@ export default function Biodata() {
       <input
         type={type}
         {...field}
-        required={req}
         disabled={!isEditable}
         style={{ width: "100%", padding: "0.6rem" }}
       />
@@ -295,7 +333,7 @@ export default function Biodata() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="card">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="card">
         {/* STEP 1: INFO TIM */}
         <div style={{ display: step === 1 ? "block" : "none" }}>
           <h2 style={{ marginTop: 0 }}>Identitas Tim</h2>
@@ -351,7 +389,7 @@ export default function Biodata() {
               </h2>
               <p
                 style={{
-                  color: "var(--navy-soft)",
+                  color: "var(--navy-deep)",
                   fontSize: "0.95rem",
                   marginBottom: "1.5rem",
                 }}
@@ -455,7 +493,7 @@ export default function Biodata() {
                       type="tel"
                       {...register(`members.${index}.whatsapp`, {
                         required: true,
-                        pattern: /^[0-9]{8,15}$/,
+                        pattern: /^[0-9\s\-]{8,18}$/,
                       })}
                       disabled={!isEditable}
                       placeholder="81234567890"

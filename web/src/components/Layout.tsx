@@ -24,7 +24,6 @@ export function Layout() {
         if (data && data.length > 0) {
           const latestDate = new Date(data[0].published_at).getTime();
           const lastRead = localStorage.getItem("last_read_notif");
-          // Jika belum pernah baca, atau ada pengumuman yang lebih baru dari terakhir kali baca
           if (!lastRead || latestDate > parseInt(lastRead)) {
             setHasNewNotif(true);
           }
@@ -39,10 +38,95 @@ export function Layout() {
     navigate("/login");
   };
 
+  const BellButton = () => (
+    <Link
+      to="/pengumuman"
+      title="Pengumuman"
+      onClick={() => {
+        localStorage.setItem("last_read_notif", Date.now().toString());
+        setHasNewNotif(false);
+      }}
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "38px",
+        height: "38px",
+        background: "#f97316",
+        color: "#111827",
+        borderRadius: "8px",
+        textDecoration: "none",
+        borderBottom: "3px solid #ea580c",
+        transition: "transform 0.1s",
+        flexShrink: 0,
+      }}
+      onMouseDown={(e) =>
+        (e.currentTarget.style.transform = "translateY(2px)")
+      }
+      onMouseUp={(e) =>
+        (e.currentTarget.style.transform = "translateY(0)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.transform = "translateY(0)")
+      }
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
+
+      {hasNewNotif && (
+        <span
+          style={{
+            position: "absolute",
+            top: "-4px",
+            right: "-4px",
+            width: "12px",
+            height: "12px",
+            background: "#e11d48",
+            borderRadius: "50%",
+            border: "2px solid var(--navy-deep)",
+          }}
+        ></span>
+      )}
+    </Link>
+  );
+
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
+      {/* Mobile-responsive styles */}
+      <style>{`
+        .nav-desktop-link {
+          color: var(--cream);
+          font-size: 0.97rem;
+          transition: color 0.2s;
+          text-decoration: none;
+        }
+        .nav-desktop-link:hover {
+          color: var(--gold-bright);
+        }
+        @media (max-width: 640px) {
+          .nav-desktop-link {
+            display: none !important;
+          }
+          .nav-desktop-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <header
         style={{
           position: "sticky",
@@ -111,7 +195,7 @@ export function Layout() {
           <nav
             style={{
               display: "flex",
-              gap: "1.5rem",
+              gap: "1rem",
               alignItems: "center",
               fontFamily: "var(--font-ui)",
             }}
@@ -127,30 +211,14 @@ export function Layout() {
                       fontWeight: 500,
                     }}
                   >
-                    ⚡ Panel Admin
+                    Panel Admin
                   </Link>
                 ) : (
                   <>
-                    <Link
-                      to="/"
-                      style={{
-                        color: "var(--cream)",
-                        fontSize: "0.97rem",
-                        transition: "color 0.2s",
-                        textDecoration: "none",
-                      }}
-                    >
+                    <Link to="/" className="nav-desktop-link">
                       Dashboard
                     </Link>
-                    <Link
-                      to="/profile"
-                      style={{
-                        color: "var(--cream)",
-                        fontSize: "0.97rem",
-                        transition: "color 0.2s",
-                        textDecoration: "none",
-                      }}
-                    >
+                    <Link to="/profile" className="nav-desktop-link">
                       Profil Tim
                     </Link>
                   </>
@@ -158,6 +226,7 @@ export function Layout() {
 
                 <button
                   onClick={handleLogout}
+                  className="nav-desktop-btn"
                   style={{
                     fontFamily: "var(--font-ui)",
                     fontSize: "0.9rem",
@@ -173,72 +242,7 @@ export function Layout() {
                   Keluar
                 </button>
 
-                {!isAdmin && (
-                  <Link
-                    to="/pengumuman"
-                    title="Pengumuman"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "last_read_notif",
-                        Date.now().toString(),
-                      );
-                      setHasNewNotif(false);
-                    }}
-                    style={{
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "38px",
-                      height: "38px",
-                      background: "#f97316", // Orange background like image
-                      color: "#111827", // Dark icon color
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      borderBottom: "3px solid #ea580c", // 3D effect like image
-                      marginLeft: "0.5rem",
-                      transition: "transform 0.1s",
-                    }}
-                    onMouseDown={(e) =>
-                      (e.currentTarget.style.transform = "translateY(2px)")
-                    }
-                    onMouseUp={(e) =>
-                      (e.currentTarget.style.transform = "translateY(0)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "translateY(0)")
-                    }
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                    </svg>
-
-                    {hasNewNotif && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: "-4px",
-                          right: "-4px",
-                          width: "12px",
-                          height: "12px",
-                          background: "#e11d48", // Red dot
-                          borderRadius: "50%",
-                          border: "2px solid var(--navy-deep)", // Match navbar background to cut out
-                        }}
-                      ></span>
-                    )}
-                  </Link>
-                )}
+                {!isAdmin && <BellButton />}
               </>
             ) : (
               <div
@@ -248,6 +252,7 @@ export function Layout() {
                   href="https://bit.ly/NationalActuarialCaseCompetitionASiQ2026Registration"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="nav-desktop-btn"
                   style={{
                     fontFamily: "var(--font-ui)",
                     fontSize: "0.9rem",
